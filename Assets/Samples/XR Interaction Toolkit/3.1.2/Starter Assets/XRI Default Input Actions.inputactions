@@ -1983,7 +1983,7 @@
                     "name": "Activate",
                     "type": "Button",
                     "id": "41976d89-60de-4deb-bff9-16b4af96b290",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -2077,6 +2077,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "DetectiveMode",
+                    "type": "Button",
+                    "id": "0fad3bf7-b763-4d11-9e5e-38a0ee79f136",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -2396,6 +2405,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "RotateObject",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d8e0ec77-6fa5-4dca-8035-0dbd28a063a5",
+                    "path": "<XRController>{RightHand}/secondaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "DetectiveMode",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

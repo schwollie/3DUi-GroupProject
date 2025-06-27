@@ -74,6 +74,11 @@ public class InspectionController : MonoBehaviour
         if (isInspecting) return;
         isInspecting = true;
         currentTween?.Kill();
+
+        if (DetectiveModeController.Instance.IsDetectiveModeOn)
+        {
+            DetectiveModeController.Instance.StopDetectiveMode();
+        }
         
         if (collider)
         {
