@@ -1904,6 +1904,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Weight
       objectReference: {fileID: 0}
+    - target: {fileID: 897629900178887435, guid: 46c27784b4cb6524d81ec33e5c0d0fea, type: 3}
+      propertyPath: m_Layer
+      value: 13
+      objectReference: {fileID: 0}
     - target: {fileID: 2133320617277705161, guid: 46c27784b4cb6524d81ec33e5c0d0fea, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.313
