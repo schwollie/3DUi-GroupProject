@@ -339,6 +339,8 @@ MonoBehaviour:
   rotateSpeed: 90
   collider: {fileID: 7130922406680166414}
   outline: {fileID: 1682842019973830086}
+  inspectStartAudio: {fileID: 11400000, guid: 27724aae478cdad40af78a300157fe1e, type: 2}
+  inspectOverAudio: {fileID: 11400000, guid: 05defc3610eaec1499a5cbb1c2d84cc8, type: 2}
 --- !u!114 &1682842019973830086
 MonoBehaviour:
   m_ObjectHideFlags: 0

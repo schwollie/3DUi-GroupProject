@@ -22,6 +22,10 @@ public class InspectionController : MonoBehaviour
     [Header("References")]
     [SerializeField] private Collider collider;
     [SerializeField] private Outline outline;
+    
+    [Header("Audio References")]
+    [SerializeField] private SoundDefinition inspectStartAudio;
+    [SerializeField] private SoundDefinition inspectOverAudio;
 
     private Vector3 originalPosition;
     private Quaternion originalRotation;
@@ -94,6 +98,12 @@ public class InspectionController : MonoBehaviour
         }
 
         Transform cameraTransform = Camera.main.transform;
+
+        if (inspectStartAudio)
+        {
+            AudioManager.Instance.PlaySound(inspectStartAudio, cameraTransform.position);
+        }
+        
         Vector3 forwardDirection = cameraTransform.forward;
         forwardDirection.y = 0;
 
@@ -127,6 +137,13 @@ public class InspectionController : MonoBehaviour
         Sequence returnSequence = DOTween.Sequence();
         returnSequence.Append(transform.DOMove(originalPosition, moveDuration).SetEase(moveEase));
         returnSequence.Join(transform.DORotateQuaternion(originalRotation, moveDuration));
+        returnSequence.OnComplete(() =>
+        {
+            if (inspectStartAudio)
+            {
+                AudioManager.Instance.PlaySound(inspectOverAudio, originalPosition);
+            }
+        });
     }
 
     private void Update()

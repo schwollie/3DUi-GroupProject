@@ -48,6 +48,9 @@ public class DetectiveModeController : MonoBehaviour
     [SerializeField] private float activateGlowWaitDuration = 0.2f;
     [SerializeField] private float detectiveModeDuration = 3f;
     [SerializeField] private Volume postProcessVolume;
+    
+    [Header("Sound Effects")]
+    [SerializeField] private SoundDefinition scanSound;
 
     private ColorAdjustments _colorAdjustments;
     
@@ -105,14 +108,19 @@ public class DetectiveModeController : MonoBehaviour
             StopCoroutine(_scannerCoroutine);
         }
         
-        _scannerCoroutine = StartCoroutine(ToggleDetectiveMode());
+        _scannerCoroutine = StartCoroutine(EnableDetectiveMode());
     }
 
-    private IEnumerator ToggleDetectiveMode()
+    private IEnumerator EnableDetectiveMode()
     {
         if (!isInitialized) Initialize();
 
         isDetectiveModeOn = true;
+        
+        if (scanSound)
+        {
+            AudioManager.Instance.PlaySound(scanSound, transform.position);
+        }
         
         scannerParticleSystem.Play();
 
