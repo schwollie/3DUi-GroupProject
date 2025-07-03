@@ -45,3 +45,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialPoolSize: 10
+  defaultAmbientMusic: {fileID: 11400000, guid: 801525a7092e4174899e6c23bc919d5d, type: 2}
+  musicTransitionDuration: 2

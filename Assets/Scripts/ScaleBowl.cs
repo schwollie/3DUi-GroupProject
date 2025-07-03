@@ -5,6 +5,7 @@ using UnityEngine;
 public class ScaleBowl : MonoBehaviour
 {
     public GameObject Anchor;
+    public float yRotDeg = 15;
 
 
     // Keep the bowl at the anchor's position and upright every frame
@@ -13,7 +14,7 @@ public class ScaleBowl : MonoBehaviour
         if (Anchor != null)
         {
             transform.position = Anchor.transform.position;
-            transform.rotation = Quaternion.identity; // Always upright
+            transform.rotation = Quaternion.Euler(0, yRotDeg, 0);
         }
     }
 
@@ -22,7 +23,7 @@ public class ScaleBowl : MonoBehaviour
         if (Anchor != null)
         {
             transform.position = Anchor.transform.position;
-            transform.rotation = Quaternion.identity;
+            transform.rotation = Quaternion.Euler(0, yRotDeg, 0);
         }
     }
 }

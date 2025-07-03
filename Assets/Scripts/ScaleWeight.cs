@@ -6,7 +6,7 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 [RequireComponent(typeof(XRGrabInteractable))]
 public class ScaleWeight : MonoBehaviour
 {
-    [Tooltip("The weight value of this object. This will also be set as the Rigidbody's mass.")]
+    [Tooltip("The weight value of this object.")]
     public float weightValue = 1.0f;
 
     // Public property to hold a reference to the interactable component
@@ -21,13 +21,5 @@ public class ScaleWeight : MonoBehaviour
         rb = GetComponent<Rigidbody>();
 
         Interactable = GetComponent<XRGrabInteractable>();
-
-        // Set the mass of the Rigidbody to match the specified weight value.
-        // This makes the physics simulation aware of the object's weight.
-        if (rb != null)
-            rb.mass = weightValue;
-        else
-            Debug.LogError("ScaleWeight script on " + gameObject.name +
-                           " requires a Rigidbody component, but none was found.");
     }
 }
