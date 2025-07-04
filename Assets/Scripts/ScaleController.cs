@@ -147,7 +147,6 @@ public class ScaleController : MonoBehaviour
         if (Mathf.Abs(currentDifference - targetWeightDifference) <= tolerance)
         {
             isSolved = true;
-            Debug.Log("Target weight reached! Puzzle solved.");
             onTargetWeightReached?.Invoke();
         }
     }
