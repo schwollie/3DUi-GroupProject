@@ -1,19 +1,22 @@
 using UnityEngine;
 using UnityEditor;
+using System.Text.RegularExpressions;
 
 public class ReplaceModelsWithPrefabs : MonoBehaviour
 {
-    [MenuItem("Tools/Replace Models with Prefabs")]
+    [MenuItem("Tools/Replace Models with Prefabs (Auto Match)")]
     static void Replace()
     {
-        // Path to your prefabs folder (inside "Assets")
+        // Path to your prefabs folder (adjust as needed)
         string prefabFolderPath = "Assets/Prefabs/";
 
         foreach (GameObject go in Selection.gameObjects)
         {
-            string name = go.name.Replace("(Clone)", "").Trim();
+            // Strip trailing "(n)" using regex
+            string baseName = Regex.Replace(go.name, @"\s*\(\d+\)$", "");
 
-            string[] guids = AssetDatabase.FindAssets(name + " t:prefab", new[] { prefabFolderPath });
+            // Search for a matching prefab
+            string[] guids = AssetDatabase.FindAssets(baseName + " t:prefab", new[] { prefabFolderPath });
 
             if (guids.Length > 0)
             {
@@ -27,9 +30,9 @@ public class ReplaceModelsWithPrefabs : MonoBehaviour
                     newGO.transform.position = go.transform.position;
                     newGO.transform.rotation = go.transform.rotation;
                     newGO.transform.localScale = go.transform.localScale;
-
                     newGO.transform.parent = go.transform.parent;
-                    newGO.name = go.name;
+
+                    newGO.name = go.name; // Keep original name with number if needed
 
                     Undo.RegisterCreatedObjectUndo(newGO, "Replace with Prefab");
                     Undo.DestroyObjectImmediate(go);
@@ -37,7 +40,7 @@ public class ReplaceModelsWithPrefabs : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"No matching prefab found for {name}");
+                Debug.LogWarning($"No prefab found for: {baseName}");
             }
         }
     }
