@@ -52,6 +52,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: plutonium_mid
       objectReference: {fileID: 0}
+    - target: {fileID: 2241759694664883714, guid: 9fabbb3722761084c8de8dcbfa045075, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2241759694664883714, guid: 9fabbb3722761084c8de8dcbfa045075, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.1276
+      objectReference: {fileID: 0}
     - target: {fileID: 3187401937683874547, guid: 9fabbb3722761084c8de8dcbfa045075, type: 3}
       propertyPath: m_Mesh
       value: 

@@ -74,10 +74,15 @@ public class Reactor : MonoBehaviour
         currentSnapedB = bluePowercell;
 
         // Execute destroy and respawn after 0.2 seconds
-        Invoke(nameof(DelayedDestroyAndRespawn), 0.2f);
+        if (currentSnapedA != null)
+            currentSnapedA.DestroyPowercellAndRespawn();
 
-        // Re-enable snap anchors after 0.2 seconds
-        Invoke(nameof(ReenableSnapAnchors), 0.2f);
+        if (currentSnapedB != null)
+            currentSnapedB.DestroyPowercellAndRespawn();
+
+
+        RedSnapAnchor.enabled = true;
+        BlueSnapAnchor.enabled = true;
 
         onReactorFailedActivation.Invoke();
     }
@@ -85,16 +90,5 @@ public class Reactor : MonoBehaviour
     // Add this new method to re-enable the snap anchors
     private void ReenableSnapAnchors()
     {
-        RedSnapAnchor.enabled = true;
-        BlueSnapAnchor.enabled = true;
-    }
-
-    private void DelayedDestroyAndRespawn()
-    {
-        if (currentSnapedA != null)
-            currentSnapedA.DestroyPowercellAndRespawn();
-
-        if (currentSnapedB != null)
-            currentSnapedB.DestroyPowercellAndRespawn();
     }
 }

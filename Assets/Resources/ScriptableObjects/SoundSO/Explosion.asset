@@ -16,7 +16,7 @@ MonoBehaviour:
   mixerGroup: {fileID: 0}
   volume: 1
   pitch: 1
-  pitchVariation: 0
+  pitchVariation: 0.026
   spatialBlend: 1
   minDistance: 1
   maxDistance: 500

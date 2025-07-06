@@ -12805,6 +12805,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 1811752666048282496, guid: 9956ce75259ed2c45af6610e498a9d0c, type: 3}
+    - {fileID: 1222509897486525652, guid: 9956ce75259ed2c45af6610e498a9d0c, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -16664,6 +16665,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 1811752666048282496, guid: 9956ce75259ed2c45af6610e498a9d0c, type: 3}
+    - {fileID: 1222509897486525652, guid: 9956ce75259ed2c45af6610e498a9d0c, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -18930,31 +18932,7 @@ MonoBehaviour:
   BlueSnapAnchor: {fileID: 1438223150}
   onReactorActivated:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 217974914}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 6676454860599178170, guid: 9dd6aa35bca1eff43b7557cea63a75ce, type: 3}
-        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
-        m_MethodName: PlayUISound
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 11400000, guid: 05defc3610eaec1499a5cbb1c2d84cc8, type: 2}
-          m_ObjectArgumentAssemblyTypeName: SoundDefinition, Assembly-CSharp
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   onReactorFailedActivation:
     m_PersistentCalls:
       m_Calls: []

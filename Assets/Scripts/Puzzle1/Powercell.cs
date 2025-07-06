@@ -20,6 +20,7 @@ public class Powercell : MonoBehaviour
 
     private void Awake()
     {
+        GetComponent<Light>().enabled = false;
         correctChargeParticleSystem = GetComponentInChildren<ParticleSystem>();
         if (correctChargeParticleSystem == null)
             Debug.LogError("Correct charge particle system not found in children!");
@@ -37,6 +38,7 @@ public class Powercell : MonoBehaviour
         }
         else
         {
+            GetComponent<Light>().enabled = false;
             AudioManager.Instance.StopContinuousSound(gameObject);
             AudioManager.Instance.PlaySound(OnError, transform.position);
             OnWrongChargeEvent.Invoke();
@@ -46,6 +48,7 @@ public class Powercell : MonoBehaviour
 
     public void OnCorrectCharge()
     {
+        GetComponent<Light>().enabled = true;
         correctChargeParticleSystem.Play();
         OnCorrectChargeEvent.Invoke();
         AudioManager.Instance.PlayContinuousSound(ElectricSparkSound, gameObject);
@@ -57,19 +60,20 @@ public class Powercell : MonoBehaviour
         return Math.Abs(currentCharge - targetCharge) < 1e-3;
     }
 
+
     public void DestroyPowercellAndRespawn()
     {
         currentCharge = -1;
         correctChargeParticleSystem.Stop();
         PlayExplosion();
-        transform.position = respawnPoint.position;
+        GetComponent<Rigidbody>().position = respawnPoint.position;
     }
 
     public void PlayExplosion()
     {
         AudioManager.Instance.PlaySound(ExplosionSound, transform.position);
         var explosion = Instantiate(Explosion);
-        Destroy(explosion, 2);
+        Destroy(explosion, 1);
         explosion.transform.position = transform.position;
     }
 }
