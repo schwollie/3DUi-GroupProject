@@ -9,7 +9,8 @@ public class Snapable : MonoBehaviour
     public enum SnapableType
     {
         Key,
-        PowerCell
+        RedPowerCell,
+        BluePowerCell
     }
 
     [Tooltip("The type of this snapable object.")]
@@ -32,7 +33,8 @@ public class Snapable : MonoBehaviour
     /// </summary>
     public void OnSnap()
     {
-        GetComponent<Rigidbody>().isKinematic = true;
+        //rb.useGravity = false;
+        rb.constraints = RigidbodyConstraints.FreezeAll;
     }
 
     /// <summary>
@@ -41,6 +43,9 @@ public class Snapable : MonoBehaviour
     /// </summary>
     public void OnUnsnap()
     {
-        grabInteractable.selectExited.AddListener(args => { GetComponent<Rigidbody>().isKinematic = false; });
+        //rb.useGravity = true;
+        rb.constraints = RigidbodyConstraints.None;
+        rb.isKinematic = false;
+        //grabInteractable.selectExited.AddListener(args => { GetComponent<Rigidbody>().isKinematic = false; });
     }
 }

@@ -51,15 +51,14 @@ public class SnapAnchor : MonoBehaviour
     private UnityEvent defaultOnSnapEvent;
 
     [Tooltip("Event which is always called additionally when any object enters the snap.")] [SerializeField]
-    private UnityEvent onSnapEnter;
+    public UnityEvent onSnapEnter;
 
     [Tooltip("Event fired when a snapped object is pulled out from the anchor.")]
     public UnityEvent onSnapExit;
 
-    private Snapable currentlySnappedObject;
-    private bool isBusy; // Used to lock the anchor during snap/unsnap animations
-
+    private bool isBusy;
     private Snapable lastSnapped;
+    public Snapable currentSnappedObject { get; private set; }
 
     private void Awake()
     {
@@ -74,12 +73,11 @@ public class SnapAnchor : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (currentlySnappedObject != null || isBusy) return;
+        if (currentSnappedObject != null || isBusy) return;
 
         var snapable = other.GetComponent<Snapable>();
         if (snapable == null) return;
 
-        // We only snap if the object is currently being held and is of an accepted type.
         if (snapable.grabInteractable.isSelected && acceptedTypes.Contains(snapable.type))
             StartCoroutine(AnimateSnap(snapable));
     }
@@ -87,19 +85,22 @@ public class SnapAnchor : MonoBehaviour
     private IEnumerator AnimateSnap(Snapable snapable, bool triggerEvents = true)
     {
         isBusy = true;
-        currentlySnappedObject = snapable;
+        currentSnappedObject = snapable;
 
         var grabInteractable = snapable.grabInteractable;
+        var rb = snapable.GetComponent<Rigidbody>();
 
-        // --- KEY CHANGE: Force the controller to drop the object ---
-        // This detaches the object from the hand, allowing it to snap freely.
+        // Force drop the object
         grabInteractable.interactionManager.CancelInteractableSelection((IXRSelectInteractable)grabInteractable);
+
+        // Temporarily make kinematic for smooth animation
+        rb.isKinematic = true;
 
         var objectTransform = snapable.transform;
         var startPosition = objectTransform.position;
         var startRotation = objectTransform.rotation;
 
-        // Calculate target rotation based on snap settings
+        // Calculate target rotation
         var targetEuler = snapTarget.rotation.eulerAngles;
         var currentEuler = startRotation.eulerAngles;
         var finalEuler = new Vector3(
@@ -109,7 +110,7 @@ public class SnapAnchor : MonoBehaviour
         );
         var finalRotation = Quaternion.Euler(finalEuler);
 
-        // Animate to snap position over the specified duration.
+        // Animate to snap position
         var elapsedTime = 0f;
         while (elapsedTime < animationDuration)
         {
@@ -120,27 +121,21 @@ public class SnapAnchor : MonoBehaviour
             yield return null;
         }
 
-        // --- Finalize Snap State ---
+        // Finalize position
         objectTransform.position = snapTarget.position;
         objectTransform.rotation = finalRotation;
 
-        // NO PARENTING: This prevents scale issues.
-        // objectTransform.SetParent(snapTarget); // This line is removed.
+        // Re-enable physics but with constraints
+        rb.isKinematic = false;
+        snapable.OnSnap();
 
-        snapable.OnSnap(); // Make the object kinematic so it stays in place.
-
-        // If the object can be removed, listen for a NEW grab event.
-        if (allowLeaveSnap)
-        {
-            grabInteractable.selectEntered.AddListener(OnSnapableReGrabbed);
-            grabInteractable.selectExited.AddListener(OnSnapableLeave);
-        }
+        // Listen for grab if allowed
+        if (allowLeaveSnap) grabInteractable.selectEntered.AddListener(OnSnapableGrabbed);
 
         lastSnapped = snapable;
 
         if (triggerEvents)
         {
-            // Trigger all relevant snap events.
             var specificEvent = specificEvents.FirstOrDefault(e => e.specificSnapable == snapable);
             if (specificEvent != null && specificEvent.onSnap != null)
                 specificEvent.onSnap.Invoke();
@@ -152,41 +147,65 @@ public class SnapAnchor : MonoBehaviour
         isBusy = false;
     }
 
+    private void OnSnapableGrabbed(SelectEnterEventArgs args)
+    {
+        if (currentSnappedObject == null) return;
+
+        // Unsubscribe immediately to prevent multiple calls
+        currentSnappedObject.grabInteractable.selectEntered.RemoveListener(OnSnapableGrabbed);
+
+        // Unsnap the object
+        currentSnappedObject.OnUnsnap();
+
+        // Fire exit event
+        onSnapExit.Invoke();
+
+        // Clear references
+        lastSnapped = null;
+        currentSnappedObject = null;
+    }
+
     private void OnTriggerExit(Collider other)
     {
+        // This is now just a backup check, main unsnapping happens in OnSnapableGrabbed
         if (lastSnapped != null && other.gameObject == lastSnapped.gameObject &&
-            lastSnapped.grabInteractable.isSelected)
-        {
-            // Re-enable physics. The XR system will handle moving it to the hand.
-            currentlySnappedObject.OnUnsnap();
-
-            // Fire the exit event.
-            onSnapExit.Invoke();
-
+            lastSnapped.grabInteractable.isSelected && currentSnappedObject == null)
             lastSnapped = null;
-            currentlySnappedObject = null;
-        }
     }
 
-    private void OnSnapableLeave(SelectExitEventArgs args)
+    public void Reset()
     {
-        if (currentlySnappedObject != null)
+        // Stop any ongoing animations
+        StopAllCoroutines();
+
+        if (currentSnappedObject != null)
         {
-            currentlySnappedObject.grabInteractable.selectExited.RemoveListener(OnSnapableLeave);
-            StartCoroutine(AnimateSnap(currentlySnappedObject, false));
+            // Remove event listener
+            currentSnappedObject.grabInteractable.selectEntered.RemoveListener(OnSnapableGrabbed);
+
+            // Force drop if currently held
+            if (currentSnappedObject.grabInteractable.isSelected)
+                currentSnappedObject.grabInteractable.interactionManager.CancelInteractableSelection(
+                    (IXRSelectInteractable)currentSnappedObject.grabInteractable);
+
+            // Unsnap the object (restore physics)
+            currentSnappedObject.OnUnsnap();
+
+            // Clear references
+            currentSnappedObject = null;
+            lastSnapped = null;
         }
+
+        // Reset busy flag
+        isBusy = false;
     }
 
-    private void OnSnapableReGrabbed(SelectEnterEventArgs args)
+    public void AllowLeave(bool allow)
     {
-        // Check if the object being grabbed is the one currently snapped.
-        if (currentlySnappedObject == null ||
-            args.interactableObject.transform != currentlySnappedObject.transform) return;
-
-        // Object was re-grabbed, perform immediate unsnap.
-        var grabInteractable = currentlySnappedObject.grabInteractable;
-
-        // Stop listening to the event to prevent memory leaks.
-        grabInteractable.selectEntered.RemoveListener(OnSnapableReGrabbed);
+        allowLeaveSnap = allow;
+        if (allow && currentSnappedObject != null)
+            currentSnappedObject.grabInteractable.selectEntered.AddListener(OnSnapableGrabbed);
+        else if (!allow && currentSnappedObject != null)
+            currentSnappedObject.grabInteractable.selectEntered.RemoveListener(OnSnapableGrabbed);
     }
 }
