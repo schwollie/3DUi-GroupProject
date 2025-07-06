@@ -66,7 +66,7 @@ public class EnvironmentController : MonoBehaviour
     private void Start()
     {
         SetEmergencyPowerState();
-        StartCoroutine(TestCoroutine());
+        //StartCoroutine(TestCoroutine());
     }
 
     private IEnumerator TestCoroutine()
