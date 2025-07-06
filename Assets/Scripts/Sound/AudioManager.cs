@@ -11,6 +11,8 @@ public class AudioManager : MonoBehaviour
 
     private List<AudioSource> _pooledSources;
 
+    private Dictionary<GameObject, AudioSource> _continuousSounds;
+
     [Header("Ambient Music Settings")] [SerializeField]
     private SoundDefinition defaultAmbientMusic;
 
@@ -31,6 +33,9 @@ public class AudioManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
+        _continuousSounds = new Dictionary<GameObject, AudioSource>();
+
+
         _pooledSources = new List<AudioSource>();
         for (var i = 0; i < initialPoolSize; i++) CreatePooledSource();
 
@@ -40,6 +45,33 @@ public class AudioManager : MonoBehaviour
         // Start default ambient music if specified
         if (defaultAmbientMusic != null) PlayDefaultAmbientMusic();
     }
+
+    private void OnDestroy()
+    {
+        // Clean up all continuous sounds when AudioManager is destroyed
+        StopAllContinuousSounds();
+    }
+
+    // Handle cleanup when GameObjects with continuous sounds are destroyed
+    private void Update()
+    {
+        // Check for destroyed GameObjects
+        var keysToRemove = new List<GameObject>();
+        foreach (var kvp in _continuousSounds)
+            if (kvp.Key == null)
+            {
+                // GameObject was destroyed, clean up the audio source
+                kvp.Value.Stop();
+                kvp.Value.clip = null;
+                kvp.Value.transform.SetParent(transform);
+                kvp.Value.transform.localPosition = Vector3.zero;
+                keysToRemove.Add(kvp.Key);
+            }
+
+        // Remove null entries
+        foreach (var key in keysToRemove) _continuousSounds.Remove(key);
+    }
+
 
     private void CreateMusicSources()
     {
@@ -178,7 +210,7 @@ public class AudioManager : MonoBehaviour
     private AudioSource GetAvailableSource()
     {
         foreach (var source in _pooledSources)
-            if (!source.isPlaying)
+            if (!source.isPlaying && !_continuousSounds.ContainsValue(source))
                 return source;
         return null;
     }
@@ -198,4 +230,78 @@ public class AudioManager : MonoBehaviour
         source.Stop();
         source.clip = null;
     }
+
+    #region continuous sound
+
+    // New method to play continuous sound attached to a moving GameObject
+    public void PlayContinuousSound(SoundDefinition soundDef, GameObject target)
+    {
+        if (!soundDef || !soundDef.clip || !target)
+        {
+            Debug.LogWarning("Tried to play a null Sound Definition, clip, or target GameObject.");
+            return;
+        }
+
+        // Check if this GameObject already has a continuous sound
+        if (_continuousSounds.ContainsKey(target))
+            // Stop the existing sound first
+            StopContinuousSound(target);
+
+        var source = GetAvailableSource();
+        if (!source)
+        {
+            source = CreatePooledSource();
+            Debug.LogWarning("Audio pool exhausted. Growing pool size.");
+        }
+
+        // Parent the audio source to the target GameObject
+        source.transform.SetParent(target.transform);
+        source.transform.localPosition = Vector3.zero;
+
+        soundDef.ApplyTo(source);
+        source.loop = true; // Ensure continuous sounds loop
+        source.Play();
+
+        // Track this continuous sound
+        _continuousSounds[target] = source;
+    }
+
+    // New method to stop continuous sound on a GameObject
+    public void StopContinuousSound(GameObject target)
+    {
+        if (!target)
+        {
+            Debug.LogWarning("Tried to stop sound on null GameObject.");
+            return;
+        }
+
+        // Check if this GameObject has a continuous sound
+        if (_continuousSounds.TryGetValue(target, out var source))
+        {
+            // Stop and clean up the audio source
+            source.Stop();
+            source.clip = null;
+            source.transform.SetParent(transform); // Return to AudioManager
+            source.transform.localPosition = Vector3.zero;
+
+            // Remove from tracking dictionary
+            _continuousSounds.Remove(target);
+        }
+        // If no sound is playing on this GameObject, nothing happens (as requested)
+    }
+
+    // Optional: Stop all continuous sounds
+    public void StopAllContinuousSounds()
+    {
+        var targets = new List<GameObject>(_continuousSounds.Keys);
+        foreach (var target in targets) StopContinuousSound(target);
+    }
+
+    // Optional: Check if a GameObject has a continuous sound playing
+    public bool HasContinuousSound(GameObject target)
+    {
+        return target != null && _continuousSounds.ContainsKey(target);
+    }
+
+    #endregion
 }

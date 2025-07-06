@@ -39,6 +39,7 @@ public class Reactor : MonoBehaviour
 
     private void OnSuccess()
     {
+        GameEvents.TriggerPowerRestored(true);
         onReactorActivated.Invoke();
         RedSnapAnchor.AllowLeave(false);
         BlueSnapAnchor.AllowLeave(false);
@@ -49,6 +50,7 @@ public class Reactor : MonoBehaviour
 
     private void OnFail()
     {
+        GameEvents.TriggerPowerRestored(false);
         // Store references BEFORE resetting
         Powercell redPowercell = null;
         Powercell bluePowercell = null;
@@ -63,14 +65,28 @@ public class Reactor : MonoBehaviour
         RedSnapAnchor.Reset();
         BlueSnapAnchor.Reset();
 
+        // Disable the snap anchors
+        RedSnapAnchor.enabled = false;
+        BlueSnapAnchor.enabled = false;
+
         // Store references for delayed execution
         currentSnapedA = redPowercell;
         currentSnapedB = bluePowercell;
 
-        // Execute destroy and respawn after 0.1 seconds
-        Invoke(nameof(DelayedDestroyAndRespawn), 0.1f);
+        // Execute destroy and respawn after 0.2 seconds
+        Invoke(nameof(DelayedDestroyAndRespawn), 0.2f);
+
+        // Re-enable snap anchors after 0.2 seconds
+        Invoke(nameof(ReenableSnapAnchors), 0.2f);
 
         onReactorFailedActivation.Invoke();
+    }
+
+    // Add this new method to re-enable the snap anchors
+    private void ReenableSnapAnchors()
+    {
+        RedSnapAnchor.enabled = true;
+        BlueSnapAnchor.enabled = true;
     }
 
     private void DelayedDestroyAndRespawn()

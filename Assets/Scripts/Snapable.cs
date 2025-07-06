@@ -9,8 +9,7 @@ public class Snapable : MonoBehaviour
     public enum SnapableType
     {
         Key,
-        RedPowerCell,
-        BluePowerCell
+        PowerCell
     }
 
     [Tooltip("The type of this snapable object.")]

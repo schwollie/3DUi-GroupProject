@@ -16,6 +16,9 @@ public class RoomMusicTrigger : MonoBehaviour
     private bool _playerInRoom;
     private static RoomMusicTrigger _currentActiveRoom;
 
+    // New field to track if player was in room before disabling
+    private bool _wasPlayerInRoomBeforeDisable;
+
     private void Awake()
     {
         // Ensure the collider is set as a trigger
@@ -61,6 +64,67 @@ public class RoomMusicTrigger : MonoBehaviour
 
             if (AudioManager.Instance != null) AudioManager.Instance.TransitionBackToAmbient();
         }
+    }
+
+    // New method to enable/disable the room music trigger
+    public void SetEnabled(bool enable)
+    {
+        if (enable)
+        {
+            // Enabling the trigger
+            enabled = true;
+
+            // If player was in room before disabling, restore the music
+            if (_wasPlayerInRoomBeforeDisable)
+            {
+                // Check if player is still physically in the trigger area
+                if (IsPlayerCurrentlyInTrigger())
+                {
+                    _playerInRoom = true;
+                    EnterRoom();
+                }
+                else
+                {
+                    // Player left while disabled, ensure clean state
+                    _playerInRoom = false;
+                }
+            }
+
+            _wasPlayerInRoomBeforeDisable = false;
+        }
+        else
+        {
+            // Disabling the trigger
+            _wasPlayerInRoomBeforeDisable = _playerInRoom;
+
+            // If music is currently playing from this trigger, stop it
+            if (_playerInRoom && _currentActiveRoom == this)
+            {
+                _currentActiveRoom = null;
+                if (AudioManager.Instance != null)
+                    AudioManager.Instance.TransitionBackToAmbient();
+            }
+
+            _playerInRoom = false;
+            enabled = false;
+        }
+    }
+
+    // Helper method to check if player is currently in the trigger area
+    private bool IsPlayerCurrentlyInTrigger()
+    {
+        var col = GetComponent<Collider>();
+        if (col == null) return false;
+
+        // Find the player
+        var player = GameObject.FindGameObjectWithTag(playerTag);
+        if (player == null) return false;
+
+        // Check if player's collider overlaps with this trigger
+        var playerCollider = player.GetComponent<Collider>();
+        if (playerCollider == null) return false;
+
+        return col.bounds.Intersects(playerCollider.bounds);
     }
 
     private void OnDrawGizmos()

@@ -7,6 +7,9 @@ public class Powercell : MonoBehaviour
     public Transform respawnPoint;
     public GameObject Explosion;
     public float targetCharge = 4;
+    public SoundDefinition OnError;
+    public SoundDefinition ElectricSparkSound;
+    public SoundDefinition ExplosionSound;
 
     private float currentCharge = -1;
 
@@ -34,7 +37,8 @@ public class Powercell : MonoBehaviour
         }
         else
         {
-            PlayExplosion();
+            AudioManager.Instance.StopContinuousSound(gameObject);
+            AudioManager.Instance.PlaySound(OnError, transform.position);
             OnWrongChargeEvent.Invoke();
         }
     }
@@ -44,6 +48,7 @@ public class Powercell : MonoBehaviour
     {
         correctChargeParticleSystem.Play();
         OnCorrectChargeEvent.Invoke();
+        AudioManager.Instance.PlayContinuousSound(ElectricSparkSound, gameObject);
         // set shader or other stuff etc
     }
 
@@ -62,6 +67,7 @@ public class Powercell : MonoBehaviour
 
     public void PlayExplosion()
     {
+        AudioManager.Instance.PlaySound(ExplosionSound, transform.position);
         var explosion = Instantiate(Explosion);
         Destroy(explosion, 2);
         explosion.transform.position = transform.position;
