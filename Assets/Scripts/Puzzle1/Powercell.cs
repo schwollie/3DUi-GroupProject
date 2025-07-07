@@ -25,6 +25,13 @@ public class Powercell : MonoBehaviour
         if (correctChargeParticleSystem == null)
             Debug.LogError("Correct charge particle system not found in children!");
         correctChargeParticleSystem.Stop();
+
+        GameEvents.OnPowerRestored += OnTechRoomCompleted;
+    }
+
+    public void OnTechRoomCompleted(bool completed)
+    {
+        if (completed) AudioManager.Instance.StopContinuousSound(gameObject);
     }
 
     public void SetCharge(float charge)

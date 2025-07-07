@@ -16,6 +16,8 @@ public class RoomMusicTrigger : MonoBehaviour
     private bool _playerInRoom;
     private static RoomMusicTrigger _currentActiveRoom;
 
+    public bool startEnabled = true;
+
     // New field to track if player was in room before disabling
     private bool _wasPlayerInRoomBeforeDisable;
 
@@ -24,6 +26,11 @@ public class RoomMusicTrigger : MonoBehaviour
         // Ensure the collider is set as a trigger
         var col = GetComponent<Collider>();
         if (col != null) col.isTrigger = true;
+    }
+
+    private void Start()
+    {
+        SetEnabled(startEnabled);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -51,7 +58,7 @@ public class RoomMusicTrigger : MonoBehaviour
 
         _currentActiveRoom = this;
 
-        if (AudioManager.Instance != null)
+        if (AudioManager.Instance != null && enabled)
             AudioManager.Instance.TransitionToRoomMusic(roomMusic, roomMusicVolume, fadeOutAmbientMusic);
     }
 
@@ -62,7 +69,7 @@ public class RoomMusicTrigger : MonoBehaviour
         {
             _currentActiveRoom = null;
 
-            if (AudioManager.Instance != null) AudioManager.Instance.TransitionBackToAmbient();
+            if (AudioManager.Instance != null && enabled) AudioManager.Instance.TransitionBackToAmbient();
         }
     }
 
