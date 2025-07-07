@@ -7,9 +7,9 @@ public class Powercell : MonoBehaviour
     public Transform respawnPoint;
     public GameObject Explosion;
     public float targetCharge = 4;
-    public SoundDefinition OnError;
     public SoundDefinition ElectricSparkSound;
     public SoundDefinition ExplosionSound;
+    public bool isRed = true; // true for red, false for blue
 
     private float currentCharge = -1;
 
@@ -33,16 +33,9 @@ public class Powercell : MonoBehaviour
         currentCharge = charge;
 
         if (Math.Abs(targetCharge - charge) < 1e-3)
-        {
             OnCorrectCharge();
-        }
         else
-        {
-            GetComponent<Light>().enabled = false;
-            AudioManager.Instance.StopContinuousSound(gameObject);
-            AudioManager.Instance.PlaySound(OnError, transform.position);
-            OnWrongChargeEvent.Invoke();
-        }
+            OnUncorrectCharge();
     }
 
 
@@ -60,13 +53,25 @@ public class Powercell : MonoBehaviour
         return Math.Abs(currentCharge - targetCharge) < 1e-3;
     }
 
+    public void OnUncorrectCharge()
+    {
+        correctChargeParticleSystem.Stop();
+        correctChargeParticleSystem.Clear();
+        GetComponent<Light>().enabled = false;
+        AudioManager.Instance.StopContinuousSound(gameObject);
+        OnWrongChargeEvent.Invoke();
+    }
+
 
     public void DestroyPowercellAndRespawn()
     {
+        OnUncorrectCharge();
         currentCharge = -1;
-        correctChargeParticleSystem.Stop();
         PlayExplosion();
         GetComponent<Rigidbody>().position = respawnPoint.position;
+        GetComponent<Rigidbody>().rotation = respawnPoint.rotation;
+        GetComponent<Rigidbody>().linearVelocity = Vector3.zero;
+        GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
     }
 
     public void PlayExplosion()

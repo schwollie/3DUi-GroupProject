@@ -13,24 +13,28 @@ PrefabInstance:
       value: BluePowercell
       objectReference: {fileID: 0}
     - target: {fileID: 1414714931309761749, guid: ced501f21de46d14dbb7c3736874ba27, type: 3}
+      propertyPath: isRed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1414714931309761749, guid: ced501f21de46d14dbb7c3736874ba27, type: 3}
       propertyPath: targetCharge
       value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 1414714931309761749, guid: ced501f21de46d14dbb7c3736874ba27, type: 3}
       propertyPath: OnWrongChargeEvent.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgument
       value: 
-      objectReference: {fileID: 2100000, guid: f290450e30950a343bb71f2c87026836, type: 2}
+      objectReference: {fileID: 2100000, guid: f40ae4a049428d1488223525e1f81d53, type: 2}
     - target: {fileID: 4537059334470788831, guid: ced501f21de46d14dbb7c3736874ba27, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.096
+      value: -2.922
       objectReference: {fileID: 0}
     - target: {fileID: 4537059334470788831, guid: ced501f21de46d14dbb7c3736874ba27, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 1.1315
       objectReference: {fileID: 0}
     - target: {fileID: 4537059334470788831, guid: ced501f21de46d14dbb7c3736874ba27, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 5.306
+      value: 6.143
       objectReference: {fileID: 0}
     - target: {fileID: 4537059334470788831, guid: ced501f21de46d14dbb7c3736874ba27, type: 3}
       propertyPath: m_LocalRotation.w
