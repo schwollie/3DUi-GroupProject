@@ -24,12 +24,22 @@ public class Lever : MonoBehaviour
     [Range(0, 180)]
     public float symmetricLimit = 45f;
 
+    [SerializeField] private bool needsEnabling = false;
+
     // State tracking
     private bool isBeingHeld;
     private bool hasTriggeredSideA;
     private bool hasTriggeredSideB;
 
     private void OnEnable()
+    {
+        if (!needsEnabling)
+        {
+            FindAndSetupHinge();
+        }
+    }
+
+    public void EnableLever()
     {
         FindAndSetupHinge();
     }
