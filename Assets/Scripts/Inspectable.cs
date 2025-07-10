@@ -33,6 +33,8 @@ public class InspectionController : MonoBehaviour
     private bool isInspecting;
     private Tween currentTween;
 
+    private Transform inspectionPivot;
+
     private void Awake()
     {
         rotateInputAction.action.Enable();
@@ -41,10 +43,12 @@ public class InspectionController : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (inspectionPivot) Destroy(inspectionPivot.gameObject);
+        
         rotateInputAction.action.Disable();
         InputSystem.onDeviceChange -= OnDeviceChange;
     }
-
+    
     private void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
         switch (change)
@@ -57,6 +61,7 @@ public class InspectionController : MonoBehaviour
                 break;
         }
     }
+
 
     public void OnHoverEnter(HoverEnterEventArgs args)
     {
@@ -89,14 +94,21 @@ public class InspectionController : MonoBehaviour
 
         var forwardDirection = cameraTransform.forward;
         forwardDirection.y = 0;
-
         var targetPosition = cameraTransform.position + forwardDirection.normalized * inspectionDistance;
 
-        var targetRotation = Quaternion.LookRotation(transform.position - cameraTransform.position);
+        inspectionPivot = new GameObject("InspectionPivot").transform;
+        inspectionPivot.position = targetPosition;
+
+        var targetRotation = Quaternion.LookRotation(cameraTransform.position - inspectionPivot.position);
 
         var sequence = DOTween.Sequence();
         sequence.Append(transform.DOMove(targetPosition, moveDuration).SetEase(moveEase));
         sequence.Join(transform.DORotateQuaternion(targetRotation, moveDuration));
+        sequence.OnComplete(() =>
+        {
+            transform.SetParent(inspectionPivot);
+        });
+
         currentTween = sequence;
     }
 
@@ -106,31 +118,38 @@ public class InspectionController : MonoBehaviour
         isInspecting = false;
 
         if (interactor) interactor.transform.GetChild(0).gameObject.SetActive(true);
-
         if (collider) collider.enabled = true;
 
         currentTween?.Kill();
+
+        transform.SetParent(null);
 
         var returnSequence = DOTween.Sequence();
         returnSequence.Append(transform.DOMove(originalPosition, moveDuration).SetEase(moveEase));
         returnSequence.Join(transform.DORotateQuaternion(originalRotation, moveDuration));
         returnSequence.OnComplete(() =>
         {
-            if (inspectStartAudio) AudioManager.Instance.PlaySound(inspectOverAudio, originalPosition);
+            if (inspectOverAudio) AudioManager.Instance.PlaySound(inspectOverAudio, originalPosition);
         });
+
+        if (inspectionPivot) Destroy(inspectionPivot.gameObject);
     }
 
     private void Update()
     {
-        if (isInspecting)
+        if (isInspecting && inspectionPivot)
         {
             var rotateInput = rotateInputAction.action.ReadValue<Vector2>();
 
             if (Mathf.Abs(rotateInput.x) > 0.1f)
-                transform.Rotate(Vector3.up, -rotateInput.x * rotateSpeed * Time.deltaTime, Space.World);
+            {
+                inspectionPivot.Rotate(Vector3.up, -rotateInput.x * rotateSpeed * Time.deltaTime, Space.World);
+            }
 
             if (Mathf.Abs(rotateInput.y) > 0.1f)
-                transform.Rotate(Vector3.right, rotateInput.y * rotateSpeed * Time.deltaTime, Space.World);
+            {
+                inspectionPivot.Rotate(Camera.main.transform.right, rotateInput.y * rotateSpeed * Time.deltaTime, Space.World);
+            }
         }
     }
 }
