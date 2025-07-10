@@ -654,9 +654,11 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8dbf0bce59e68eb4699177db836bd801, type: 2}
   - {fileID: 11400000, guid: dfe8ddededf6a0941a6ef829075f381d, type: 2}
   - {fileID: 11400000, guid: fcfbb7120de125449b13fe6917ae6293, type: 2}
-  teleportationProvider: {fileID: 2933928575600359968}
-  stepInterval: 0.5
+  referenceSpeed: 2
+  stepIntervalAtReferenceSpeed: 0.5
   minVelocityThreshold: 0.2
+  teleportationProvider: {fileID: 2933928575600359968}
+  teleportArrivalSound: {fileID: 0}
 --- !u!1 &2979273370769569470
 GameObject:
   m_ObjectHideFlags: 0

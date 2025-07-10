@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion;
@@ -8,46 +7,48 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerFootsteps : MonoBehaviour
 {
-    [Header("Footstep Settings")]
-    [Tooltip("The list of footstep sounds to be chosen from randomly.")]
+    [Header("Continuous Movement Settings")]
+    [Tooltip("The list of footstep sounds to be chosen from randomly for continuous movement.")]
     [SerializeField] private List<SoundDefinition> footstepSounds;
-    
-    [Header("Teleportation Setup")]
-    [Tooltip("Reference to the TeleportationProvider on your XR Rig.")]
-    [SerializeField] private TeleportationProvider teleportationProvider;
 
-    [Tooltip("The time in seconds between each footstep sound while moving.")]
-    [SerializeField] private float stepInterval = 0.5f;
+    [Tooltip("The speed at which the Step Interval is calculated (e.g., your average walking speed).")]
+    [SerializeField] private float referenceSpeed = 2.0f;
+    [Tooltip("The time in seconds between each footstep when moving at the Reference Speed.")]
+    [SerializeField] private float stepIntervalAtReferenceSpeed = 0.5f;
 
     [Tooltip("The minimum speed the player must be moving at to trigger footsteps.")]
     [SerializeField] private float minVelocityThreshold = 0.1f;
 
+    [Header("Teleportation Settings")]
+    [Tooltip("Reference to the TeleportationProvider on your XR Rig.")]
+    [SerializeField] private TeleportationProvider teleportationProvider;
+
     private CharacterController _characterController;
-    private Vector3 _lastPosition;    
+    private Vector3 _lastPosition;
     private float _stepTimer;
-    
+
     private void Awake()
     {
         _characterController = GetComponent<CharacterController>();
     }
-    
+
     private void OnEnable()
     {
-        if (teleportationProvider != null)
+        if (teleportationProvider)
         {
-            teleportationProvider.locomotionEnded += PlayFootstepSound;
+            teleportationProvider.locomotionEnded += OnTeleportationEnded;
         }
     }
-    
+
     private void OnDisable()
     {
-        if (teleportationProvider != null)
+        if (teleportationProvider)
         {
-            teleportationProvider.locomotionEnded -= PlayFootstepSound;
+            teleportationProvider.locomotionEnded -= OnTeleportationEnded;
         }
     }
-    
-    private void PlayFootstepSound(LocomotionProvider obj)
+
+    private void OnTeleportationEnded(LocomotionProvider provider)
     {
         PlayFootstepSound();
     }
@@ -61,7 +62,7 @@ public class PlayerFootsteps : MonoBehaviour
     {
         if (!_characterController.isGrounded)
         {
-            _stepTimer = 0f;
+            _stepTimer = 0.2f; 
             _lastPosition = transform.position;
             return;
         }
@@ -70,24 +71,25 @@ public class PlayerFootsteps : MonoBehaviour
         _lastPosition = transform.position;
 
         Vector3 horizontalVelocity = new Vector3(currentVelocity.x, 0, currentVelocity.z);
+        float currentSpeed = horizontalVelocity.magnitude;
 
-        if (horizontalVelocity.magnitude > minVelocityThreshold)
+        if (currentSpeed > minVelocityThreshold)
         {
             _stepTimer -= Time.deltaTime;
 
             if (_stepTimer <= 0f)
             {
                 PlayFootstepSound();
-                _stepTimer = stepInterval;
+                _stepTimer = stepIntervalAtReferenceSpeed * (referenceSpeed / currentSpeed);
             }
         }
         else
         {
-            _stepTimer = 0f;
+            _stepTimer = 0.2f;
         }
     }
 
-    public void PlayFootstepSound()
+    private void PlayFootstepSound()
     {
         if (footstepSounds == null || footstepSounds.Count == 0)
         {
