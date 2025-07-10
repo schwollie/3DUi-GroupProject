@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &1070086426327991014
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3029950099273771978, guid: ae5ae7c3ff1008f4c936a40c9bbedd02, type: 3}
+      propertyPath: m_text
+      value: "Two years in, and the backup manifold choked...     A minor failure,
+        but enough to fry my pod and kick me out of cryo. I woke up to a flickering
+        nav core and half the systems in failsafe.\r\n\r\nThe delay\u2019s measurable;
+        <color=red>three years</color>, plus minus a couple of days. We\u2019re still
+        headed the right way, just slower. Nothing I can\u2019t fix. Eventually.\r\n\r\nCouldn\u2019t
+        wake you. Didn\u2019t want to. With the slowdown, I recalibrated your cryo
+        pod, extended your sleep by the same three years.\r\n\r\nRebooting my cryo?
+        Impossible. Needs a full station repair bay.\n\r\nI\u2019ll stay up. Someone
+        has to keep the ship breathing. \r\n"
+      objectReference: {fileID: 0}
+    - target: {fileID: 8495083335092659354, guid: ae5ae7c3ff1008f4c936a40c9bbedd02, type: 3}
+      propertyPath: m_Name
+      value: note_2 Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 9128596214768057888, guid: ae5ae7c3ff1008f4c936a40c9bbedd02, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 7.786
+      objectReference: {fileID: 0}
+    - target: {fileID: 9128596214768057888, guid: ae5ae7c3ff1008f4c936a40c9bbedd02, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.705
+      objectReference: {fileID: 0}
+    - target: {fileID: 9128596214768057888, guid: ae5ae7c3ff1008f4c936a40c9bbedd02, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 7.851
+      objectReference: {fileID: 0}
+    - target: {fileID: 9128596214768057888, guid: ae5ae7c3ff1008f4c936a40c9bbedd02, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9128596214768057888, guid: ae5ae7c3ff1008f4c936a40c9bbedd02, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9128596214768057888, guid: ae5ae7c3ff1008f4c936a40c9bbedd02, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9128596214768057888, guid: ae5ae7c3ff1008f4c936a40c9bbedd02, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9128596214768057888, guid: ae5ae7c3ff1008f4c936a40c9bbedd02, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9128596214768057888, guid: ae5ae7c3ff1008f4c936a40c9bbedd02, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9128596214768057888, guid: ae5ae7c3ff1008f4c936a40c9bbedd02, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ae5ae7c3ff1008f4c936a40c9bbedd02, type: 3}

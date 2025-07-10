@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40b39682625fb0243ac5a697d21cddfb, type: 3}
   m_Name: InspectStartedSFX_SO
   m_EditorClassIdentifier: 
-  clip: {fileID: 8300000, guid: a3283be73cc074947a988eefb2d94f48, type: 3}
+  clip: {fileID: 8300000, guid: 6773404c6d8401547b679378136c3c73, type: 3}
   mixerGroup: {fileID: 0}
   volume: 1
   pitch: 1

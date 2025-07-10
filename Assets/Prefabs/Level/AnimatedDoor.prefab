@@ -58,7 +58,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: d752881ac57926846a8bc96a231a607c, type: 3}
       propertyPath: m_Name
-      value: Door (5)
+      value: AnimatedDoor
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -66,26 +66,26 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d752881ac57926846a8bc96a231a607c, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2622429843725427918}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d752881ac57926846a8bc96a231a607c, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 5962179378466067230}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d752881ac57926846a8bc96a231a607c, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4986700126607870052}
+      addedObject: {fileID: 8888025042429207546}
+    - targetCorrespondingSourceObject: {fileID: 8164078558771037576, guid: d752881ac57926846a8bc96a231a607c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2314966745934805541}
   m_SourcePrefab: {fileID: 100100000, guid: d752881ac57926846a8bc96a231a607c, type: 3}
---- !u!1 &6530823071422394240 stripped
+--- !u!1 &2823738390743996249 stripped
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: d752881ac57926846a8bc96a231a607c, type: 3}
+  m_CorrespondingSourceObject: {fileID: 8164078558771037576, guid: d752881ac57926846a8bc96a231a607c, type: 3}
   m_PrefabInstance: {fileID: 6224903955609260753}
   m_PrefabAsset: {fileID: 0}
---- !u!64 &2622429843725427918
-MeshCollider:
+--- !u!65 &2314966745934805541
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6530823071422394240}
+  m_GameObject: {fileID: 2823738390743996249}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -97,10 +97,14 @@ MeshCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 0}
+  serializedVersion: 3
+  m_Size: {x: 1.5625004, y: 2.53125, z: 0.12500003}
+  m_Center: {x: 0, y: 1.265625, z: 0}
+--- !u!1 &6530823071422394240 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: d752881ac57926846a8bc96a231a607c, type: 3}
+  m_PrefabInstance: {fileID: 6224903955609260753}
+  m_PrefabAsset: {fileID: 0}
 --- !u!95 &5962179378466067230
 Animator:
   serializedVersion: 7
@@ -123,24 +127,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!65 &4986700126607870052
-BoxCollider:
+--- !u!114 &8888025042429207546
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6530823071422394240}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1.5292075, y: 3.0036273, z: 0.8597646}
-  m_Center: {x: -0.00025483736, y: 1.0018126, z: -0.24466586}
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b26193c9e3151ba41b6fc45aaebb5763, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  doorAnimator: {fileID: 5962179378466067230}
+  openSound: {fileID: 0}
+  closeSound: {fileID: 0}

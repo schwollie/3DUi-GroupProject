@@ -35,6 +35,9 @@ public class EnvironmentController : MonoBehaviour
     [SerializeField] private SoundDefinition powerDownFailureSound;
     [SerializeField] private SoundDefinition lightsOnSfxDefinition;
 
+    [Header("Living Room Door")] 
+    [SerializeField] private DoorController livingRoomDoorController;
+
     private Coroutine _flickerCoroutine;
     private List<float> _originalCeilingIntensities = new List<float>();
 
@@ -147,6 +150,10 @@ public class EnvironmentController : MonoBehaviour
                 }
                 yield return null;
             }
+
+            yield return new WaitForSeconds(2f);
+            
+            livingRoomDoorController.OpenDoor();
         }
         else
         {

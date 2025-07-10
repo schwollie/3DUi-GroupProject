@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40b39682625fb0243ac5a697d21cddfb, type: 3}
-  m_Name: InspectOverSFX_SO
+  m_Name: DoorOpenSFX_SO
   m_EditorClassIdentifier: 
-  clip: {fileID: 8300000, guid: 087880f672f90fa478b9a22883ba2c2d, type: 3}
+  clip: {fileID: 8300000, guid: bc35025a5e570334bb19ce57978709dc, type: 3}
   mixerGroup: {fileID: 0}
   volume: 1
   pitch: 1
