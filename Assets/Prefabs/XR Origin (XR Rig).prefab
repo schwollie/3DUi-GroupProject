@@ -2135,6 +2135,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6422086727709335758}
     m_Modifications:
+    - target: {fileID: 2442306273320644280, guid: 3df3e1220f2164f448701a6de8084f92, type: 3}
+      propertyPath: m_InteractionLayers.m_Bits
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 4804964734930210078, guid: 3df3e1220f2164f448701a6de8084f92, type: 3}
       propertyPath: m_Name
       value: Near-Far Interactor
@@ -2810,10 +2814,6 @@ PrefabInstance:
       propertyPath: m_RaycastMask.m_Bits
       value: 2147485729
       objectReference: {fileID: 0}
-    - target: {fileID: 8408429868716997126, guid: b200f6587d118224eba8467281481800, type: 3}
-      propertyPath: m_ManipulationInput.m_InputActionReference
-      value: 
-      objectReference: {fileID: 8275859971367427353, guid: b6d5c44ebe3244b7692e81ae8265eb22, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

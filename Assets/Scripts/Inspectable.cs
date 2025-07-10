@@ -17,6 +17,7 @@ public class InspectionController : MonoBehaviour
     public float moveDuration = 0.4f;
     public Ease moveEase = Ease.OutBack;
     public float rotateSpeed = 180f;
+    public Vector3 inspectionStartRotation;
 
     [Header("References")] [SerializeField]
     private Collider collider;
@@ -99,11 +100,19 @@ public class InspectionController : MonoBehaviour
         inspectionPivot = new GameObject("InspectionPivot").transform;
         inspectionPivot.position = targetPosition;
 
-        var targetRotation = Quaternion.LookRotation(cameraTransform.position - inspectionPivot.position);
-
+        // ---- the "I'm so cool to deal with transformation matrices" hack start ----
+        var parent = transform.parent;
+        transform.SetParent(Camera.main.transform);
+        transform.localRotation = Quaternion.Euler(inspectionStartRotation);
+        Quaternion rotationCalculated = transform.rotation;
+        
+        transform.SetParent(parent);
+        transform.rotation = originalRotation;
+        // ---- hack ended ----
+        
         var sequence = DOTween.Sequence();
         sequence.Append(transform.DOMove(targetPosition, moveDuration).SetEase(moveEase));
-        sequence.Join(transform.DORotateQuaternion(targetRotation, moveDuration));
+        sequence.Join(transform.DORotateQuaternion(rotationCalculated, moveDuration));
         sequence.OnComplete(() =>
         {
             transform.SetParent(inspectionPivot);

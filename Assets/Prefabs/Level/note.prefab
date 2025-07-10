@@ -34,7 +34,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.004, y: 0.04}
+  m_AnchoredPosition: {x: 0.004, y: 0.032}
   m_SizeDelta: {x: 0.25, y: 0.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &7597365753301567904
@@ -226,7 +226,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.004, y: 0.04}
+  m_AnchoredPosition: {x: 0.004, y: 0.032}
   m_SizeDelta: {x: 0.25, y: 0.35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &8573042369898487652
@@ -700,6 +700,7 @@ MonoBehaviour:
   moveDuration: 0.3
   moveEase: 27
   rotateSpeed: 90
+  inspectionStartRotation: {x: -90, y: 0, z: 0}
   collider: {fileID: 4073951300538598214}
   outline: {fileID: 2881315737008346918}
   inspectStartAudio: {fileID: 11400000, guid: 27724aae478cdad40af78a300157fe1e, type: 2}

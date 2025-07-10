@@ -83,6 +83,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: plutonium_Large
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: b8c2b31e634cd794299928db70403592, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 8164078558771037576, guid: b8c2b31e634cd794299928db70403592, type: 3}
@@ -115,6 +119,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b8c2b31e634cd794299928db70403592, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8919389460910324706}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b8c2b31e634cd794299928db70403592, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1787778611935766534}
   m_SourcePrefab: {fileID: 100100000, guid: b8c2b31e634cd794299928db70403592, type: 3}
 --- !u!4 &1226790708677232084 stripped
 Transform:
@@ -188,10 +195,34 @@ MonoBehaviour:
       m_Calls: []
   m_HoverEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1787778611935766534}
+        m_TargetAssemblyTypeName: Outline, Assembly-CSharp
+        m_MethodName: set_OutlineWidth
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 2
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_HoverExited:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1787778611935766534}
+        m_TargetAssemblyTypeName: Outline, Assembly-CSharp
+        m_MethodName: set_OutlineWidth
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_FirstSelectEntered:
     m_PersistentCalls:
       m_Calls: []
@@ -388,3 +419,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tresholdDistance: 30
+--- !u!114 &1787778611935766534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1895381071332417390}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 0
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
