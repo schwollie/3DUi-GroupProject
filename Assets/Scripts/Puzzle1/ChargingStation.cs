@@ -250,7 +250,11 @@ public class ChargingStation : MonoBehaviour
         yield return new WaitForSeconds(thirdDuration);
 
         // Stay on completely full and charge the cell
-        if (currentPowercell != null) currentPowercell.SetCharge(_plutoniumContainer.GetTotalWeight());
+        if (currentPowercell != null)
+        {
+            _plutoniumContainer.OnCorrectCharge();
+            currentPowercell.SetCharge(_plutoniumContainer.GetTotalWeight());
+        }
 
         isCharging = false;
     }

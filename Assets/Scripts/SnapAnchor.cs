@@ -110,6 +110,8 @@ public class SnapAnchor : MonoBehaviour
         );
         var finalRotation = Quaternion.Euler(finalEuler);
 
+        snapable.OnSnap();
+
         // Animate to snap position
         var elapsedTime = 0f;
         while (elapsedTime < animationDuration)
@@ -127,7 +129,7 @@ public class SnapAnchor : MonoBehaviour
 
         // Re-enable physics but with constraints
         rb.isKinematic = false;
-        snapable.OnSnap();
+
 
         // Listen for grab if allowed
         if (allowLeaveSnap) grabInteractable.selectEntered.AddListener(OnSnapableGrabbed);

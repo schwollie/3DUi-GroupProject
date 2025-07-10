@@ -19,4 +19,10 @@ public class DynamicPowerEventSender : MonoBehaviour
         else
             onPowerInCorrectRestored?.Invoke();
     }
+
+    [ContextMenu("TestRestored")]
+    public void TestRestored()
+    {
+        GameEvents.TriggerPowerRestored(true);
+    }
 }

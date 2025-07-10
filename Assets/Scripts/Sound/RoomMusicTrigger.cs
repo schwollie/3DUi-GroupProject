@@ -13,13 +13,9 @@ public class RoomMusicTrigger : MonoBehaviour
     [Header("Trigger Settings")] [SerializeField]
     private string playerTag = "Player";
 
-    private bool _playerInRoom;
     private static RoomMusicTrigger _currentActiveRoom;
 
-    public bool startEnabled = true;
-
-    // New field to track if player was in room before disabling
-    private bool _wasPlayerInRoomBeforeDisable;
+    private bool player_in_room;
 
     private void Awake()
     {
@@ -28,34 +24,19 @@ public class RoomMusicTrigger : MonoBehaviour
         if (col != null) col.isTrigger = true;
     }
 
-    private void Start()
-    {
-        SetEnabled(startEnabled);
-    }
-
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag(playerTag) && !_playerInRoom)
-        {
-            _playerInRoom = true;
-            EnterRoom();
-        }
+        if (other.CompareTag(playerTag)) EnterRoom();
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag(playerTag) && _playerInRoom)
-        {
-            _playerInRoom = false;
-            ExitRoom();
-        }
+        if (other.CompareTag(playerTag)) ExitRoom();
     }
 
     private void EnterRoom()
     {
-        // If there's another active room, it should handle its exit
-        if (_currentActiveRoom != null && _currentActiveRoom != this) _currentActiveRoom._playerInRoom = false;
-
+        player_in_room = true;
         _currentActiveRoom = this;
 
         if (AudioManager.Instance != null && enabled)
@@ -64,6 +45,7 @@ public class RoomMusicTrigger : MonoBehaviour
 
     private void ExitRoom()
     {
+        player_in_room = false;
         // Only transition back if this is the currently active room
         if (_currentActiveRoom == this)
         {
@@ -81,38 +63,20 @@ public class RoomMusicTrigger : MonoBehaviour
             // Enabling the trigger
             enabled = true;
 
-            // If player was in room before disabling, restore the music
-            if (_wasPlayerInRoomBeforeDisable)
-            {
-                // Check if player is still physically in the trigger area
-                if (IsPlayerCurrentlyInTrigger())
-                {
-                    _playerInRoom = true;
-                    EnterRoom();
-                }
-                else
-                {
-                    // Player left while disabled, ensure clean state
-                    _playerInRoom = false;
-                }
-            }
-
-            _wasPlayerInRoomBeforeDisable = false;
+            // Check if player is still physically in the trigger area
+            if (IsPlayerCurrentlyInTrigger()) EnterRoom();
         }
         else
         {
-            // Disabling the trigger
-            _wasPlayerInRoomBeforeDisable = _playerInRoom;
-
+            player_in_room = false;
             // If music is currently playing from this trigger, stop it
-            if (_playerInRoom && _currentActiveRoom == this)
+            if (_currentActiveRoom == this)
             {
                 _currentActiveRoom = null;
                 if (AudioManager.Instance != null)
                     AudioManager.Instance.TransitionBackToAmbient();
             }
 
-            _playerInRoom = false;
             enabled = false;
         }
     }
@@ -140,7 +104,7 @@ public class RoomMusicTrigger : MonoBehaviour
         var col = GetComponent<Collider>();
         if (col != null)
         {
-            Gizmos.color = _playerInRoom ? Color.green : Color.yellow;
+            Gizmos.color = player_in_room ? Color.green : Color.yellow;
             Gizmos.color = new Color(Gizmos.color.r, Gizmos.color.g, Gizmos.color.b, 0.3f);
 
             if (col is BoxCollider box)

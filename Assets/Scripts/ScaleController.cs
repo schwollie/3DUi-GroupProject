@@ -29,7 +29,22 @@ public class ScaleController : MonoBehaviour
     public float tolerance = 0.1f;
 
     [Header("Animation")] [Tooltip("How quickly the scale and handle animate to their new positions.")]
-    public float tiltSpeed = 0.3f;
+    public float tiltSpeed = 0.4f;
+
+    [Header("Indicator Lamp")] [Tooltip("The renderer component of the indicator lamp.")]
+    public Renderer indicatorLampRenderer;
+
+    [Tooltip("The material property name to change (usually '_Color' for standard shader).")]
+    public string colorPropertyName = "_GlowColor";
+
+    [Tooltip("Color when no weights are on the scale.")]
+    public Color noWeightsColor = Color.black;
+
+    [Tooltip("Color when the scale is unbalanced.")]
+    public Color unbalancedColor = Color.red;
+
+    [Tooltip("Color when the scale is balanced.")]
+    public Color balancedColor = Color.green;
 
     [Header("Events")] [Tooltip("This event is triggered once when the scale reaches the target weight.")]
     public UnityEvent onTargetWeightReached;
@@ -71,6 +86,8 @@ public class ScaleController : MonoBehaviour
 
         // 3. Animate the handle based on the calculated weights
         UpdateHandleRotation(currentLeftWeight, currentRightWeight);
+
+        UpdateIndicatorLamp(currentLeftWeight, currentRightWeight);
 
         // 4. Check for the puzzle solution if not already solved
         if (!isSolved)
@@ -139,6 +156,28 @@ public class ScaleController : MonoBehaviour
         handleTransform.localRotation =
             Quaternion.Slerp(handleTransform.localRotation, targetRotation, Time.deltaTime * tiltSpeed);
     }
+
+    private void UpdateIndicatorLamp(float leftWeight, float rightWeight)
+    {
+        // If no indicator lamp renderer is assigned, do nothing
+        if (indicatorLampRenderer == null) return;
+
+        Color targetColor;
+
+        // Check if there are no weights on either side
+        if (leftWeight == 0 && rightWeight == 0)
+            targetColor = noWeightsColor;
+        // Check if the scale is balanced (weights are equal)
+        else if (Mathf.Abs(leftWeight - rightWeight) <= tolerance)
+            targetColor = balancedColor;
+        // Otherwise, the scale is unbalanced
+        else
+            targetColor = unbalancedColor;
+
+        // Apply the color to the material
+        indicatorLampRenderer.material.SetColor(colorPropertyName, targetColor);
+    }
+
 
     private void CheckForSolution(float leftWeight, float rightWeight)
     {
