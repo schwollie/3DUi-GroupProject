@@ -476,6 +476,7 @@ GameObject:
   - component: {fileID: 8941506074783838693}
   - component: {fileID: 3183349688182156456}
   - component: {fileID: 4635387061418251407}
+  - component: {fileID: 8015972226547758331}
   m_Layer: 2
   m_Name: XR Origin (XR Rig)
   m_TagString: Player
@@ -637,6 +638,25 @@ MonoBehaviour:
   detectiveModeDuration: 3
   postProcessVolume: {fileID: 2610253700400227463}
   scanSound: {fileID: 11400000, guid: f1adec97ca8ea0346bb1ed739e158972, type: 2}
+--- !u!114 &8015972226547758331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2938094440627644727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 025e765faf3113245a2ef37809f5f238, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  footstepSounds:
+  - {fileID: 11400000, guid: 8dbf0bce59e68eb4699177db836bd801, type: 2}
+  - {fileID: 11400000, guid: dfe8ddededf6a0941a6ef829075f381d, type: 2}
+  - {fileID: 11400000, guid: fcfbb7120de125449b13fe6917ae6293, type: 2}
+  teleportationProvider: {fileID: 2933928575600359968}
+  stepInterval: 0.5
+  minVelocityThreshold: 0.2
 --- !u!1 &2979273370769569470
 GameObject:
   m_ObjectHideFlags: 0
