@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.VFX;
 
 public class WarpEffect : MonoBehaviour
@@ -7,8 +8,10 @@ public class WarpEffect : MonoBehaviour
     public VisualEffect warpSpeedVFX;
     public float rate = 0.02f;
 
+    [SerializeField] private float warpDuration = 20f;
+    [SerializeField] private string nextSceneName = "CutsceneEnd";
+
     private bool warpActive;
-    
 
     private void Start()
     {
@@ -18,9 +21,9 @@ public class WarpEffect : MonoBehaviour
 
     public void ActivateWarpEffect()
     {
-        Debug.Log(1);
         warpActive = true;
         StartCoroutine(ActivateParticles());
+        StartCoroutine(WarpTimer());
     }
 
     public void DeactivateWarpEffect()
@@ -63,5 +66,11 @@ public class WarpEffect : MonoBehaviour
                 }
             }
         }
+    }
+
+    IEnumerator WarpTimer()
+    {
+        yield return new WaitForSeconds(warpDuration);
+        SceneManager.LoadScene(nextSceneName);
     }
 }
