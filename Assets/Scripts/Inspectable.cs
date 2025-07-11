@@ -29,7 +29,10 @@ public class InspectionController : MonoBehaviour
 
     [SerializeField] private SoundDefinition inspectOverAudio;
 
+    private Transform originalParent;
     private Vector3 originalPosition;
+    private Vector3 originalLocalPosition;
+    private Quaternion originalLocalRotation;
     private Quaternion originalRotation;
     private bool isInspecting;
     private Tween currentTween;
@@ -40,16 +43,20 @@ public class InspectionController : MonoBehaviour
     {
         rotateInputAction.action.Enable();
         InputSystem.onDeviceChange += OnDeviceChange;
+
+        originalParent = transform.parent;
+        originalLocalPosition = transform.localPosition;
+        originalLocalRotation = transform.localRotation;
     }
 
     private void OnDestroy()
     {
         if (inspectionPivot) Destroy(inspectionPivot.gameObject);
-        
+
         rotateInputAction.action.Disable();
         InputSystem.onDeviceChange -= OnDeviceChange;
     }
-    
+
     private void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
         switch (change)
@@ -104,19 +111,16 @@ public class InspectionController : MonoBehaviour
         var parent = transform.parent;
         transform.SetParent(Camera.main.transform);
         transform.localRotation = Quaternion.Euler(inspectionStartRotation);
-        Quaternion rotationCalculated = transform.rotation;
-        
+        var rotationCalculated = transform.rotation;
+
         transform.SetParent(parent);
         transform.rotation = originalRotation;
         // ---- hack ended ----
-        
+
         var sequence = DOTween.Sequence();
         sequence.Append(transform.DOMove(targetPosition, moveDuration).SetEase(moveEase));
         sequence.Join(transform.DORotateQuaternion(rotationCalculated, moveDuration));
-        sequence.OnComplete(() =>
-        {
-            transform.SetParent(inspectionPivot);
-        });
+        sequence.OnComplete(() => { transform.SetParent(inspectionPivot); });
 
         currentTween = sequence;
     }
@@ -139,6 +143,9 @@ public class InspectionController : MonoBehaviour
         returnSequence.OnComplete(() =>
         {
             if (inspectOverAudio) AudioManager.Instance.PlaySound(inspectOverAudio, originalPosition);
+            transform.SetParent(originalParent);
+            transform.localRotation = originalLocalRotation;
+            transform.localPosition = originalLocalPosition;
         });
 
         if (inspectionPivot) Destroy(inspectionPivot.gameObject);
@@ -151,14 +158,11 @@ public class InspectionController : MonoBehaviour
             var rotateInput = rotateInputAction.action.ReadValue<Vector2>();
 
             if (Mathf.Abs(rotateInput.x) > 0.1f)
-            {
                 inspectionPivot.Rotate(Vector3.up, -rotateInput.x * rotateSpeed * Time.deltaTime, Space.World);
-            }
 
             if (Mathf.Abs(rotateInput.y) > 0.1f)
-            {
-                inspectionPivot.Rotate(Camera.main.transform.right, rotateInput.y * rotateSpeed * Time.deltaTime, Space.World);
-            }
+                inspectionPivot.Rotate(Camera.main.transform.right, rotateInput.y * rotateSpeed * Time.deltaTime,
+                    Space.World);
         }
     }
 }

@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   clip: {fileID: 8300000, guid: 5d3cc59edddc867438379df7faddbd94, type: 3}
   mixerGroup: {fileID: 0}
-  volume: 1
+  volume: 0.5
   pitch: 1
   pitchVariation: 0
-  spatialBlend: 1
+  spatialBlend: 0
   minDistance: 1
   maxDistance: 500
   loop: 0

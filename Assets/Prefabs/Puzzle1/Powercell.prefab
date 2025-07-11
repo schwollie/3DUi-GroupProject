@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: 394678444563750898}
   - component: {fileID: 1678854751731325710}
   - component: {fileID: 4812734382045113075}
+  - component: {fileID: 2244683856030496760}
   m_Layer: 0
   m_Name: Powercell
   m_TagString: Untagged
@@ -180,10 +181,34 @@ MonoBehaviour:
       m_Calls: []
   m_HoverEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2244683856030496760}
+        m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
+        m_MethodName: set_enabled
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
   m_HoverExited:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2244683856030496760}
+        m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
+        m_MethodName: set_enabled
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_FirstSelectEntered:
     m_PersistentCalls:
       m_Calls: []
@@ -296,9 +321,9 @@ MonoBehaviour:
   respawnPoint: {fileID: 0}
   Explosion: {fileID: 4319892366068161482, guid: da0ce955855b72d46b286f6c787a1257, type: 3}
   targetCharge: 4
-  OnError: {fileID: 11400000, guid: 133ea6e646ccf024f9926cf6ffd09aaf, type: 2}
   ElectricSparkSound: {fileID: 11400000, guid: 99c6cc9aea0294741813599e01f67019, type: 2}
   ExplosionSound: {fileID: 11400000, guid: 18c3d687979b73a4e900a8741ce0d349, type: 2}
+  isRed: 1
   OnCorrectChargeEvent:
     m_PersistentCalls:
       m_Calls:
@@ -5218,6 +5243,24 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!114 &2244683856030496760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 553685050447058817}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &7641265870072156953
 GameObject:
   m_ObjectHideFlags: 0
