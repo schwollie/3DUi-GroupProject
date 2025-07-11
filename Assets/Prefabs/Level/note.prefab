@@ -695,8 +695,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactor: {fileID: 0}
+  xrGrabInteractable: {fileID: 7663444148226734401}
   rotateInputAction: {fileID: -7189516856441763956, guid: c348712bda248c246b8c49b3db54643f, type: 3}
   inspectionDistance: 0.3
+  inspectionBoundaryDistance: 2
   moveDuration: 0.3
   moveEase: 27
   rotateSpeed: 90

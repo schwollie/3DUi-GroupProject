@@ -520,7 +520,7 @@ MonoBehaviour:
   m_OriginBaseGameObject: {fileID: 2938094440627644727}
   m_CameraFloorOffsetObject: {fileID: 1715852338184046169}
   m_RequestedTrackingOriginMode: 2
-  m_CameraYOffset: 0
+  m_CameraYOffset: 1.75
 --- !u!143 &2912977642155179221
 CharacterController:
   m_ObjectHideFlags: 0
@@ -658,7 +658,6 @@ MonoBehaviour:
   stepIntervalAtReferenceSpeed: 0.5
   minVelocityThreshold: 0.2
   teleportationProvider: {fileID: 2933928575600359968}
-  teleportArrivalSound: {fileID: 0}
 --- !u!1 &2979273370769569470
 GameObject:
   m_ObjectHideFlags: 0

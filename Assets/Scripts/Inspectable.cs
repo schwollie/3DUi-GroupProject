@@ -1,23 +1,28 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 public class InspectionController : MonoBehaviour
 {
     [Header("Setup")] [Tooltip("Assign the controller interactor (e.g., RightHand Controller) here.")]
-    public XRBaseInputInteractor interactor;
+    [SerializeField] private XRBaseInputInteractor interactor;
+    [SerializeField] private XRGrabInteractable xrGrabInteractable;
 
     [Header("Input")]
     [Tooltip("Reference to the input action for rotation. Use the 'Turn' action from the 'XRI Right Locomotion' map.")]
-    public InputActionReference rotateInputAction;
+    [SerializeField] private InputActionReference rotateInputAction;
 
-    [Header("Animation & Feel")] public float inspectionDistance = 0.7f;
-    public float moveDuration = 0.4f;
-    public Ease moveEase = Ease.OutBack;
-    public float rotateSpeed = 180f;
-    public Vector3 inspectionStartRotation;
+    [Header("Animation & Feel")] 
+    [SerializeField] private float inspectionDistance = 0.7f;
+    [SerializeField] private float inspectionBoundaryDistance = 2f;
+    [SerializeField] private float moveDuration = 0.4f;
+    [SerializeField] private Ease moveEase = Ease.OutBack;
+    [SerializeField] private float rotateSpeed = 180f;
+    [SerializeField] private Vector3 inspectionStartRotation;
 
     [Header("References")] [SerializeField]
     private Collider collider;
@@ -35,9 +40,18 @@ public class InspectionController : MonoBehaviour
     private Quaternion originalLocalRotation;
     private Quaternion originalRotation;
     private bool isInspecting;
+    private bool reachedToPlayer;
     private Tween currentTween;
 
     private Transform inspectionPivot;
+    
+    private Vector3 _inspectablePosForDistanceCheck;
+    private Vector3 _playerPosForDistanceCheck;
+    
+    private XRInteractionManager interactionManager;
+    private IXRSelectInteractable selectInteractable;
+    
+
 
     private void Awake()
     {
@@ -47,6 +61,13 @@ public class InspectionController : MonoBehaviour
         originalParent = transform.parent;
         originalLocalPosition = transform.localPosition;
         originalLocalRotation = transform.localRotation;
+
+        selectInteractable = GetComponent<IXRSelectInteractable>();
+    }
+
+    private void Start()
+    {
+        interactionManager = xrGrabInteractable.interactionManager;
     }
 
     private void OnDestroy()
@@ -86,7 +107,7 @@ public class InspectionController : MonoBehaviour
         if (isInspecting) return;
         isInspecting = true;
         currentTween?.Kill();
-
+        
         if (DetectiveModeController.Instance.IsDetectiveModeOn) DetectiveModeController.Instance.StopDetectiveMode();
 
         if (collider) collider.enabled = false;
@@ -120,7 +141,11 @@ public class InspectionController : MonoBehaviour
         var sequence = DOTween.Sequence();
         sequence.Append(transform.DOMove(targetPosition, moveDuration).SetEase(moveEase));
         sequence.Join(transform.DORotateQuaternion(rotationCalculated, moveDuration));
-        sequence.OnComplete(() => { transform.SetParent(inspectionPivot); });
+        sequence.OnComplete(() =>
+        {
+            reachedToPlayer = true;
+            transform.SetParent(inspectionPivot);
+        });
 
         currentTween = sequence;
     }
@@ -146,6 +171,7 @@ public class InspectionController : MonoBehaviour
             transform.SetParent(originalParent);
             transform.localRotation = originalLocalRotation;
             transform.localPosition = originalLocalPosition;
+            reachedToPlayer = false;
         });
 
         if (inspectionPivot) Destroy(inspectionPivot.gameObject);
@@ -163,6 +189,20 @@ public class InspectionController : MonoBehaviour
             if (Mathf.Abs(rotateInput.y) > 0.1f)
                 inspectionPivot.Rotate(Camera.main.transform.right, rotateInput.y * rotateSpeed * Time.deltaTime,
                     Space.World);
+            
+            _inspectablePosForDistanceCheck = transform.position;
+            _inspectablePosForDistanceCheck.y = 0f;
+            _playerPosForDistanceCheck = Camera.main.transform.position;
+            _playerPosForDistanceCheck.y = 0f;
+
+            if (reachedToPlayer && Vector3.Distance(_playerPosForDistanceCheck, transform.position) > inspectionBoundaryDistance)
+            {
+                OnInspectEnd(null);
+                if (interactionManager && interactor)
+                {
+                    interactionManager.SelectCancel(interactor, selectInteractable);
+                }
+            }
         }
     }
 }
