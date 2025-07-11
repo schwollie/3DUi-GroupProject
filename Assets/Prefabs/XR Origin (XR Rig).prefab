@@ -477,6 +477,7 @@ GameObject:
   - component: {fileID: 3183349688182156456}
   - component: {fileID: 4635387061418251407}
   - component: {fileID: 8015972226547758331}
+  - component: {fileID: 6032092728333569674}
   m_Layer: 2
   m_Name: XR Origin (XR Rig)
   m_TagString: Player
@@ -658,6 +659,24 @@ MonoBehaviour:
   stepIntervalAtReferenceSpeed: 0.5
   minVelocityThreshold: 0.2
   teleportationProvider: {fileID: 2933928575600359968}
+--- !u!114 &6032092728333569674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2938094440627644727}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: baaa99733712295489649da0e8ca518c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  teleportRayInteractor: {fileID: 8522486948354819049}
+  playerCameraTransform: {fileID: 8455660931133002372}
+  controllerTransform: {fileID: 4666893348039420136}
+  occlusionLayers:
+    serializedVersion: 2
+    m_Bits: 1
 --- !u!1 &2979273370769569470
 GameObject:
   m_ObjectHideFlags: 0
