@@ -1021,11 +1021,6 @@ MonoBehaviour:
   m_Teleporting:
     m_PersistentCalls:
       m_Calls: []
---- !u!1 &1327222935 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6186829270488752925, guid: 4d6a7909bc7a63440806c048b96430e7, type: 3}
-  m_PrefabInstance: {fileID: 563659421}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1472868570
 GameObject:
   m_ObjectHideFlags: 0
@@ -1127,7 +1122,7 @@ PrefabInstance:
     - target: {fileID: 915695841967803780, guid: 067eaaa7878160147a8fcafa76a65789, type: 3}
       propertyPath: keycard
       value: 
-      objectReference: {fileID: 1327222935}
+      objectReference: {fileID: 1868611427}
     - target: {fileID: 2073854376930495498, guid: 067eaaa7878160147a8fcafa76a65789, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.598
@@ -1177,6 +1172,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 067eaaa7878160147a8fcafa76a65789, type: 3}
+--- !u!1 &1868611427 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4186234408699714818, guid: 4d6a7909bc7a63440806c048b96430e7, type: 3}
+  m_PrefabInstance: {fileID: 563659421}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2092139007
 GameObject:
   m_ObjectHideFlags: 0

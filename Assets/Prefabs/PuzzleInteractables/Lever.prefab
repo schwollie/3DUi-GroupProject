@@ -9,8 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8837348554618971758}
-  - component: {fileID: 2831857431595098371}
-  m_Layer: 13
+  m_Layer: 0
   m_Name: Lever
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34,28 +33,6 @@ Transform:
   - {fileID: 6011732801871493205}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2831857431595098371
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5424828965961244521}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd625f646533b3f41bf1f6bafe7e58a9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  eventTriggerTreshold: 10
-  onSideA:
-    m_PersistentCalls:
-      m_Calls: []
-  onSideB:
-    m_PersistentCalls:
-      m_Calls: []
-  anchor: {fileID: 6210895695667889988}
-  hinge: {fileID: 8792543174555080509}
-  symmetricLimit: 80
 --- !u!1 &6015954668216335524
 GameObject:
   m_ObjectHideFlags: 0
@@ -174,7 +151,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4395119465148054011}
-  m_Layer: 13
+  m_Layer: 0
   m_Name: Anchor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -209,7 +186,7 @@ GameObject:
   - component: {fileID: 4745355755551673527}
   - component: {fileID: 2924936952099777365}
   - component: {fileID: 864360697557716818}
-  m_Layer: 13
+  m_Layer: 0
   m_Name: Bar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -317,10 +294,9 @@ GameObject:
   - component: {fileID: 2457098790003616205}
   - component: {fileID: 682911031054104596}
   - component: {fileID: 265695730297068066}
-  - component: {fileID: 4498071960203095836}
-  - component: {fileID: 5681845831763843997}
-  - component: {fileID: 8792543174555080509}
-  m_Layer: 13
+  - component: {fileID: 9160078157927697536}
+  - component: {fileID: 7204641622505729043}
+  m_Layer: 0
   m_Name: Handle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -396,7 +372,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!54 &4498071960203095836
+--- !u!54 &9160078157927697536
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -405,8 +381,8 @@ Rigidbody:
   m_GameObject: {fileID: 6567327053343955631}
   serializedVersion: 4
   m_Mass: 1
-  m_Drag: 0.2
-  m_AngularDrag: 0.2
+  m_Drag: 0
+  m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -418,12 +394,12 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &5681845831763843997
+--- !u!114 &7204641622505729043
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -432,12 +408,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 6567327053343955631}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ad34abafad169848a38072baa96cdb2, type: 3}
+  m_Script: {fileID: 11500000, guid: fd625f646533b3f41bf1f6bafe7e58a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_InteractionManager: {fileID: 0}
-  m_Colliders:
-  - {fileID: 4745355755551673527}
+  m_Colliders: []
   m_InteractionLayers:
     m_Bits: 1
   m_DistanceCalculationMode: 1
@@ -496,7 +471,7 @@ MonoBehaviour:
   m_StartingHoverFilters: []
   m_StartingSelectFilters: []
   m_StartingInteractionStrengthFilters: []
-  m_AttachTransform: {fileID: 0}
+  m_AttachTransform: {fileID: 6820731004993019798}
   m_SecondaryAttachTransform: {fileID: 0}
   m_UseDynamicAttach: 0
   m_MatchAttachPosition: 1
@@ -504,7 +479,7 @@ MonoBehaviour:
   m_SnapToColliderVolume: 1
   m_ReinitializeDynamicAttachEverySingleGrab: 1
   m_AttachEaseInTime: 0.15
-  m_MovementType: 0
+  m_MovementType: 2
   m_VelocityDamping: 1
   m_VelocityScale: 1
   m_AngularVelocityDamping: 1
@@ -545,43 +520,18 @@ MonoBehaviour:
   m_StartingSingleGrabTransformers: []
   m_StartingMultipleGrabTransformers: []
   m_AddDefaultGrabTransformers: 1
-  m_FarAttachMode: 1
---- !u!59 &8792543174555080509
-HingeJoint:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6567327053343955631}
-  serializedVersion: 3
-  m_ConnectedBody: {fileID: 0}
-  m_ConnectedArticulationBody: {fileID: 0}
-  m_Anchor: {x: 0, y: 0, z: 0}
-  m_Axis: {x: 1, y: 0, z: 0}
-  m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: 0, y: 0, z: 0}
-  m_UseSpring: 1
-  m_Spring:
-    spring: 0
-    damper: 20
-    targetPosition: 0
-  m_UseMotor: 0
-  m_Motor:
-    targetVelocity: 0
-    force: 0
-    freeSpin: 0
-  m_UseLimits: 1
-  m_ExtendedLimits: 0
-  m_UseAcceleration: 0
-  m_Limits:
-    min: -80
-    max: 80
-    bounciness: 0
-    bounceMinVelocity: 0.2
-    contactDistance: 0
-  m_BreakForce: Infinity
-  m_BreakTorque: Infinity
-  m_EnableCollision: 0
-  m_EnablePreprocessing: 1
-  m_MassScale: 1
-  m_ConnectedMassScale: 1
+  m_FarAttachMode: 0
+  handle: {fileID: 6820731004993019798}
+  rotationAxis: 0
+  symmetricLimit: 58
+  zeroAngleOffset: 0
+  eventTriggerThreshold: 10
+  onSideA:
+    m_PersistentCalls:
+      m_Calls: []
+  onSideB:
+    m_PersistentCalls:
+      m_Calls: []
+  rotationSpeed: 90
+  lerpThreshold: 5
+  lerpSpeed: 10

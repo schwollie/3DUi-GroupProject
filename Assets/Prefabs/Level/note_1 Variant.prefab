@@ -208,6 +208,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: note_1 Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 9085887745145471174, guid: ae5ae7c3ff1008f4c936a40c9bbedd02, type: 3}
+      propertyPath: inspectionDistance
+      value: 0.4
+      objectReference: {fileID: 0}
     - target: {fileID: 9128596214768057888, guid: ae5ae7c3ff1008f4c936a40c9bbedd02, type: 3}
       propertyPath: m_LocalPosition.x
       value: 8.216
