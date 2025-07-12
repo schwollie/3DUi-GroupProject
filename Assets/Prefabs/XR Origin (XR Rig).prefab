@@ -170,7 +170,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.007, y: -0.088}
+  m_AnchoredPosition: {x: 0.018, y: -0.088}
   m_SizeDelta: {x: 0.2, y: 0.1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5573477058035994261
@@ -266,7 +266,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: -0.12196292, w: 0}
+  m_margin: {x: 0, y: 0, z: -0.08691874, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -638,6 +638,9 @@ MonoBehaviour:
   exitTutorialInputActionReference: {fileID: -8828419883806175850, guid: c348712bda248c246b8c49b3db54643f, type: 3}
   tutorialGameObject: {fileID: 4224170290394673547}
   tutorialSoundDefinition: {fileID: 11400000, guid: 78564901a97238b40bd3c50624c13901, type: 2}
+  playerCamera: {fileID: 0}
+  horizontalDeadZone: 25
+  followSpeed: 5
 --- !u!1 &2368172628958103388
 GameObject:
   m_ObjectHideFlags: 0
@@ -1736,7 +1739,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8945095350513441489
 RectTransform:
   m_ObjectHideFlags: 0

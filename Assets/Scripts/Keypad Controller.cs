@@ -24,6 +24,7 @@ public class KeypadController : MonoBehaviour
     [SerializeField] private SoundDefinition passwordIncorrectSoundDefinition;
     [SerializeField] private SoundDefinition passwordCorrectSoundDefinition;
     [SerializeField] private SoundDefinition openDoorSoundDefinition;
+    [SerializeField] private SoundDefinition keypadButtonPressedSoundDefinition;
     
     [Header("Keypad References")]
     [SerializeField] private CanvasGroup keypadCanvasGroup;
@@ -68,7 +69,9 @@ public class KeypadController : MonoBehaviour
 
     public void AddDigit(int digit)
     {
+        AudioManager.Instance.PlaySound(keypadButtonPressedSoundDefinition, transform.position);
         if (_isLocked || _hasSucceeded) return;
+        
         if (_input.Count >= correctPassword.Count) return;
 
         _input.Add(digit);
@@ -77,6 +80,7 @@ public class KeypadController : MonoBehaviour
 
     public void DeleteLast()
     {
+        AudioManager.Instance.PlaySound(keypadButtonPressedSoundDefinition, transform.position);
         if (_isLocked || _hasSucceeded) return;
         if (_input.Count == 0) return;
 
@@ -86,6 +90,7 @@ public class KeypadController : MonoBehaviour
 
     public void Submit()
     {
+        AudioManager.Instance.PlaySound(keypadButtonPressedSoundDefinition, transform.position);
         if (_isLocked || _hasSucceeded) return;
         if (_input.Count != correctPassword.Count) return;
 
