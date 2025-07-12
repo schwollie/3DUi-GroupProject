@@ -1,15 +1,18 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 using UnityEngine.VFX;
 
 public class WarpEffect : MonoBehaviour
 {
+    private static readonly int StartText = Animator.StringToHash("Start");
     public VisualEffect warpSpeedVFX;
     public float rate = 0.02f;
 
     [SerializeField] private float warpDuration = 20f;
-    [SerializeField] private string nextSceneName = "CutsceneEnd";
+    [SerializeField] private Animator storyTextAnimator;
+    [SerializeField] private Animator creditsTextAnimator;
 
     private bool warpActive;
 
@@ -71,6 +74,15 @@ public class WarpEffect : MonoBehaviour
     IEnumerator WarpTimer()
     {
         yield return new WaitForSeconds(warpDuration);
-        SceneManager.LoadScene(nextSceneName);
+        PlayTimeline();
+    }
+
+    public void PlayTimeline()
+    {
+        if (storyTextAnimator && creditsTextAnimator)
+        {
+            storyTextAnimator.SetTrigger(StartText);
+            creditsTextAnimator.SetTrigger(StartText);
+        }
     }
 }
