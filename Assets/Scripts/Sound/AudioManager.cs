@@ -39,28 +39,22 @@ public class AudioManager : MonoBehaviour
         _pooledSources = new List<AudioSource>();
         for (var i = 0; i < initialPoolSize; i++) CreatePooledSource();
 
-        // Create dedicated audio sources for music
         CreateMusicSources();
 
-        // Start default ambient music if specified
         if (defaultAmbientMusic != null) PlayDefaultAmbientMusic();
     }
 
     private void OnDestroy()
     {
-        // Clean up all continuous sounds when AudioManager is destroyed
         StopAllContinuousSounds();
     }
 
-    // Handle cleanup when GameObjects with continuous sounds are destroyed
     private void Update()
     {
-        // Check for destroyed GameObjects
         var keysToRemove = new List<GameObject>();
         foreach (var kvp in _continuousSounds)
-            if (kvp.Key == null)
+            if (!kvp.Key)
             {
-                // GameObject was destroyed, clean up the audio source
                 kvp.Value.Stop();
                 kvp.Value.clip = null;
                 kvp.Value.transform.SetParent(transform);
@@ -68,31 +62,28 @@ public class AudioManager : MonoBehaviour
                 keysToRemove.Add(kvp.Key);
             }
 
-        // Remove null entries
         foreach (var key in keysToRemove) _continuousSounds.Remove(key);
     }
 
 
     private void CreateMusicSources()
     {
-        // Create ambient music source
         var ambientGo = new GameObject("AmbientMusicSource");
         ambientGo.transform.SetParent(transform);
         _ambientMusicSource = ambientGo.AddComponent<AudioSource>();
         _ambientMusicSource.loop = true;
-        _ambientMusicSource.spatialBlend = 0f; // 2D sound
+        _ambientMusicSource.spatialBlend = 0f;
 
-        // Create room music source
         var roomGo = new GameObject("RoomMusicSource");
         roomGo.transform.SetParent(transform);
         _roomMusicSource = roomGo.AddComponent<AudioSource>();
         _roomMusicSource.loop = true;
-        _roomMusicSource.spatialBlend = 0f; // 2D sound
+        _roomMusicSource.spatialBlend = 0f;
     }
 
     public void PlayDefaultAmbientMusic()
     {
-        if (defaultAmbientMusic != null && _ambientMusicSource != null)
+        if (defaultAmbientMusic && _ambientMusicSource)
         {
             defaultAmbientMusic.ApplyTo(_ambientMusicSource);
             _ambientMusicSource.Play();
@@ -113,8 +104,7 @@ public class AudioManager : MonoBehaviour
 
     private IEnumerator TransitionMusicCoroutine(SoundDefinition roomMusic, float roomVolume, bool fadeOutAmbient)
     {
-        // Setup room music
-        if (roomMusic != null)
+        if (roomMusic)
         {
             roomMusic.ApplyTo(_roomMusicSource);
             _roomMusicSource.volume = 0f;
@@ -130,17 +120,14 @@ public class AudioManager : MonoBehaviour
             elapsed += Time.deltaTime;
             var t = elapsed / musicTransitionDuration;
 
-            // Fade in room music
-            if (roomMusic != null) _roomMusicSource.volume = Mathf.Lerp(0f, roomVolume, t);
+            if (roomMusic) _roomMusicSource.volume = Mathf.Lerp(0f, roomVolume, t);
 
-            // Fade out ambient if requested
             if (fadeOutAmbient) _ambientMusicSource.volume = Mathf.Lerp(startAmbientVolume, targetAmbientVolume, t);
 
             yield return null;
         }
 
-        // Ensure final values
-        if (roomMusic != null) _roomMusicSource.volume = roomVolume;
+        if (roomMusic) _roomMusicSource.volume = roomVolume;
         if (fadeOutAmbient)
         {
             _ambientMusicSource.volume = 0f;
@@ -152,33 +139,28 @@ public class AudioManager : MonoBehaviour
     {
         var elapsed = 0f;
         var startRoomVolume = _roomMusicSource.volume;
-        var targetAmbientVolume = defaultAmbientMusic != null ? defaultAmbientMusic.volume : 1f;
+        var targetAmbientVolume = defaultAmbientMusic ? defaultAmbientMusic.volume : 1f;
 
-        // Resume ambient if it was paused
-        if (!_ambientMusicSource.isPlaying && defaultAmbientMusic != null) _ambientMusicSource.UnPause();
+        if (!_ambientMusicSource.isPlaying && defaultAmbientMusic) _ambientMusicSource.UnPause();
 
         while (elapsed < musicTransitionDuration)
         {
             elapsed += Time.deltaTime;
             var t = elapsed / musicTransitionDuration;
 
-            // Fade out room music
             _roomMusicSource.volume = Mathf.Lerp(startRoomVolume, 0f, t);
 
-            // Fade in ambient music
-            if (defaultAmbientMusic != null)
+            if (defaultAmbientMusic)
                 _ambientMusicSource.volume = Mathf.Lerp(_ambientMusicSource.volume, targetAmbientVolume, t);
 
             yield return null;
         }
 
-        // Ensure final values and stop room music
         _roomMusicSource.Stop();
         _roomMusicSource.clip = null;
-        if (defaultAmbientMusic != null) _ambientMusicSource.volume = targetAmbientVolume;
+        if (defaultAmbientMusic) _ambientMusicSource.volume = targetAmbientVolume;
     }
 
-    // Original methods remain unchanged
     public void PlaySound(SoundDefinition soundDef, Vector3 position)
     {
         if (!soundDef || !soundDef.clip)
@@ -233,7 +215,6 @@ public class AudioManager : MonoBehaviour
 
     #region continuous sound
 
-    // New method to play continuous sound attached to a moving GameObject
     public void PlayContinuousSound(SoundDefinition soundDef, GameObject target)
     {
         if (!soundDef || !soundDef.clip || !target)
@@ -242,9 +223,7 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
-        // Check if this GameObject already has a continuous sound
         if (_continuousSounds.ContainsKey(target))
-            // Stop the existing sound first
             StopContinuousSound(target);
 
         var source = GetAvailableSource();
@@ -254,19 +233,16 @@ public class AudioManager : MonoBehaviour
             Debug.LogWarning("Audio pool exhausted. Growing pool size.");
         }
 
-        // Parent the audio source to the target GameObject
         source.transform.SetParent(target.transform);
         source.transform.localPosition = Vector3.zero;
 
         soundDef.ApplyTo(source);
-        source.loop = true; // Ensure continuous sounds loop
+        source.loop = true;
         source.Play();
 
-        // Track this continuous sound
         _continuousSounds[target] = source;
     }
 
-    // New method to stop continuous sound on a GameObject
     public void StopContinuousSound(GameObject target)
     {
         if (!target)
@@ -275,29 +251,23 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
-        // Check if this GameObject has a continuous sound
-        if (_continuousSounds.TryGetValue(target, out var source))
+        if (_continuousSounds.TryGetValue(target, out var source) && transform)
         {
-            // Stop and clean up the audio source
             source.Stop();
             source.clip = null;
-            source.transform.SetParent(transform); // Return to AudioManager
+            source.transform.SetParent(transform);
             source.transform.localPosition = Vector3.zero;
 
-            // Remove from tracking dictionary
             _continuousSounds.Remove(target);
         }
-        // If no sound is playing on this GameObject, nothing happens (as requested)
     }
 
-    // Optional: Stop all continuous sounds
     public void StopAllContinuousSounds()
     {
         var targets = new List<GameObject>(_continuousSounds.Keys);
         foreach (var target in targets) StopContinuousSound(target);
     }
 
-    // Optional: Check if a GameObject has a continuous sound playing
     public bool HasContinuousSound(GameObject target)
     {
         return target != null && _continuousSounds.ContainsKey(target);

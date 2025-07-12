@@ -13,7 +13,7 @@ public class InspectionController : MonoBehaviour
     [SerializeField] private XRGrabInteractable xrGrabInteractable;
 
     [Header("Input")]
-    [Tooltip("Reference to the input action for rotation. Use the 'Turn' action from the 'XRI Right Locomotion' map.")]
+    [Tooltip("Reference to the input action for rotation")]
     [SerializeField] private InputActionReference rotateInputAction;
 
     [Header("Animation & Feel")] 

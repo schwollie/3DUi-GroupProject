@@ -8,13 +8,22 @@ public class KeypadController : MonoBehaviour
 {
     [SerializeField] private List<int> correctPassword = new();
     [SerializeField] private TMP_InputField codeDisplay;
-    [SerializeField] private string successText = "UNLOCKED";
+    [SerializeField] private string successText = "ACCESS GRANTED";
     [Min(0.1f)]
     [SerializeField] private float resetDelay = 1f;
 
     [Header("Keypad Events")]
     public UnityEvent onCorrectPassword;
     public UnityEvent onIncorrectPassword;
+    
+    [Header("Sound Definitions")]
+    [SerializeField] private SoundDefinition accessDeniedSoundDefinition;
+    [SerializeField] private SoundDefinition welcomeSoundDefinition;
+    [SerializeField] private SoundDefinition passwordIncorrectSoundDefinition;
+    [SerializeField] private SoundDefinition passwordCorrectSoundDefinition;
+    
+    [Header("Keypad References")]
+    [SerializeField] private CanvasGroup keypadCanvasGroup;
 
     private readonly List<int> _input = new();
     private bool _hasSucceeded = false; 
@@ -24,7 +33,30 @@ public class KeypadController : MonoBehaviour
 
     private void Awake()
     {
-        if (codeDisplay != null) codeDisplay.readOnly = true;
+        if (codeDisplay)
+        {
+            codeDisplay.readOnly = true;
+            codeDisplay.text = "NO POWER";
+        }
+    }
+    
+    private void OnEnable()
+    {
+        GameEvents.OnPowerRestored += HandlePowerRestored;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnPowerRestored -= HandlePowerRestored;
+    }
+    
+    private void HandlePowerRestored(bool powerRestored)
+    {
+        if (powerRestored && codeDisplay)
+        {
+            keypadCanvasGroup.interactable = true;
+            codeDisplay.text = "Enter code...";
+        }
     }
 
     public void AddDigit(int digit)
@@ -65,12 +97,32 @@ public class KeypadController : MonoBehaviour
         _hasSucceeded = true;
         onCorrectPassword?.Invoke();
         if (codeDisplay != null) codeDisplay.text = successText;
+        StartCoroutine(AccessResultSoundCoroutine(true));
     }
 
     private void HandleFailure()
     {
         onIncorrectPassword?.Invoke();
         StartCoroutine(ResetCoroutine());
+        StartCoroutine(AccessResultSoundCoroutine(false));
+    }
+
+    private IEnumerator AccessResultSoundCoroutine(bool accessGranted)
+    {
+        if (accessGranted)
+        {
+            AudioManager.Instance.PlaySound(passwordCorrectSoundDefinition, transform.position);
+            yield return new WaitForSeconds(0.5f);
+            AudioManager.Instance.PlaySound(welcomeSoundDefinition, transform.position);
+            this.enabled = false;
+        }
+        
+        else
+        {
+            AudioManager.Instance.PlaySound(passwordIncorrectSoundDefinition, transform.position);
+            yield return new WaitForSeconds(0.5f);
+            AudioManager.Instance.PlaySound(accessDeniedSoundDefinition, transform.position);
+        }
     }
 
     private IEnumerator ResetCoroutine()
@@ -79,13 +131,13 @@ public class KeypadController : MonoBehaviour
         yield return new WaitForSeconds(resetDelay);
 
         _input.Clear();
-        if (codeDisplay != null) codeDisplay.text = "Enter code…";
+        if (codeDisplay) codeDisplay.text = "Enter code...";
         _isLocked = false;  
     }
 
     private void RefreshDisplay()
     {
-        if (codeDisplay == null) return;
+        if (!codeDisplay) return;
 
         codeDisplay.text = string.Empty;
         for (int i = 0; i < _input.Count; ++i)
