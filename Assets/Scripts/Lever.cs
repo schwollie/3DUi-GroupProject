@@ -1,272 +1,292 @@
-// --- CORRECTED SCRIPT ---
-// Name this script "LeverController.cs" and place it on the PIVOT object.
-
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
-// Required for the Colliders list
-
-[RequireComponent(typeof(Rigidbody))]
-public class LeverController : XRGrabInteractable
+public class LeverXRGrabInteractable : XRGrabInteractable
 {
-    [Header("Lever Setup")]
-    [Tooltip("The child object with the collider that the user will actually grab.")]
-    [SerializeField]
-    private Transform handle;
-
     [Header("Lever Settings")] [SerializeField]
-    private RotationAxis rotationAxis = RotationAxis.Z;
+    private Vector3 rotationAxis = Vector3.right; // Local axis to rotate around
 
-    [Header("Rotation Limits")]
-    [Tooltip("Sets the lever's min/max limits symmetrically. E.g., 45 means -45 to +45 degrees.")]
-    [Range(0, 180)]
-    [SerializeField]
-    private float symmetricLimit = 45f;
+    [SerializeField] private float angleLimit = 45f; // Symmetric angle limit (degrees)
+    [SerializeField] private float smoothingSpeed = 10f; // Smoothing speed for rotation
 
-    [Tooltip("Offset angle for the zero position. Use this to adjust where the lever's center/neutral position is.")]
-    [Range(-180, 180)]
-    [SerializeField]
-    private float zeroAngleOffset = 0f;
+    [Header("Event Thresholds")] [SerializeField]
+    private float eventThresholdAngle = 30f; // Angle at which to fire events
 
+    [SerializeField] private UnityEvent onSideA;
+    [SerializeField] private UnityEvent onSideB;
+    [SerializeField] private UnityEvent onReturnToCenter;
 
-    [Header("Events")]
-    [Tooltip("How close to the min/max angle (in degrees) the lever must be to trigger events.")]
-    [SerializeField]
-    private float eventTriggerThreshold = 5f;
+    [Header("Gizmo Settings")] [SerializeField]
+    private Color gizmoColor = Color.green;
 
-    public UnityEvent onSideA; // Event for reaching the minimum angle
-    public UnityEvent onSideB; // Event for reaching the maximum angle
+    [SerializeField] private float gizmoRadius = 0.2f;
+    [SerializeField] private bool showGizmoArc = true;
 
-    [Header("Movement Settings")] [Tooltip("Rotation speed in degrees per second for large movements")] [SerializeField]
-    private float rotationSpeed = 90f;
+    // References
+    private Transform originalParent;
+    private Quaternion initialLocalRotation;
+    public Transform grabPoint;
+    private Rigidbody rb;
 
-    [Tooltip("Use smoothing (lerp) only when within this many degrees of target")] [SerializeField]
-    private float lerpThreshold = 5f;
-
-    [Tooltip("Lerp speed when very close to target (higher = faster)")] [SerializeField]
-    private float lerpSpeed = 10f;
-
-    // Private fields
+    // Runtime variables
     private float currentAngle;
-    private bool hasTriggeredSideA;
-    private bool hasTriggeredSideB;
-    private float initialLeverAngle;
-    private float initialInteractorAngle;
+    private float targetAngle;
+    private Vector3 lastInteractorPosition;
+    private bool isBeingGrabbed;
 
-    public enum RotationAxis
-    {
-        X,
-        Y,
-        Z
-    }
+    // Event tracking
+    private bool wasInPositiveThreshold;
+    private bool wasInNegativeThreshold;
+    private bool wasCentered = true;
 
     protected override void Awake()
     {
         base.Awake();
-        // --- FIX: Ensure the interactable knows which collider to use for grabbing ---
-        // If you haven't assigned colliders in the Inspector, this will find the one on the handle.
-        if (colliders.Count == 0 && handle != null)
-        {
-            var handleCollider = handle.GetComponent<Collider>();
-            if (handleCollider != null)
-                colliders.Add(handleCollider);
-            else
-                Debug.LogError($"Lever 'Handle' ({handle.name}) is missing a Collider component!", this);
-        }
 
-        ConfigureRigidbody();
+        // Store original parent and rotation
+        originalParent = transform.parent;
+        initialLocalRotation = transform.localRotation;
 
-        // We will handle the rotation ourselves in ProcessInteractable
-        trackPosition = false;
-        trackRotation = false;
-        movementType = MovementType.Instantaneous;
-    }
 
-    private void Start()
-    {
-        // Set initial angle based on the pivot's current rotation
-        currentAngle = GetCurrentAngleFromTransform();
-        ApplyRotation(currentAngle);
-    }
+        if (grabPoint == null) Debug.LogWarning("No grabPoint found as child of lever handle!");
 
-    private void ConfigureRigidbody()
-    {
-        var rb = GetComponent<Rigidbody>();
-        rb.useGravity = false;
+        // Get or add Rigidbody
+        rb = GetComponent<Rigidbody>();
+        if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
+
+        // Configure Rigidbody for kinematic movement
         rb.isKinematic = true;
+        rb.useGravity = false;
+        rb.constraints = RigidbodyConstraints.FreezePosition; // Only allow rotation
+
+        // Configure XRGrabInteractable settings
+        movementType = MovementType.Kinematic;
+        attachTransform = grabPoint;
+        throwOnDetach = false;
+        trackRotation = false;
+        trackPosition = false;
+
+        // Initialize angle
+        currentAngle = 0f;
+        targetAngle = 0f;
     }
 
     protected override void OnSelectEntered(SelectEnterEventArgs args)
     {
         base.OnSelectEntered(args);
-        // Capture initial state for relative rotation
-        initialLeverAngle = currentAngle;
-        var interactorPos = args.interactorObject.transform.position;
-        initialInteractorAngle = CalculateInteractorAngle(interactorPos);
+
+        isBeingGrabbed = true;
+
+        // Store initial interactor position
+        if (args.interactorObject.transform != null) lastInteractorPosition = args.interactorObject.transform.position;
+
+        // Ensure proper parent relationship
+        if (transform.parent != originalParent && originalParent != null) transform.SetParent(originalParent, true);
+    }
+
+    protected override void OnSelectExited(SelectExitEventArgs args)
+    {
+        base.OnSelectExited(args);
+        isBeingGrabbed = false;
+
+        // Ensure we're back with original parent
+        if (transform.parent != originalParent && originalParent != null) transform.SetParent(originalParent, true);
+    }
+
+    private void Update()
+    {
+        if (isBeingGrabbed && isSelected) UpdateLeverRotation();
+
+        // Apply smoothing
+        currentAngle = Mathf.Lerp(currentAngle, targetAngle, Time.deltaTime * smoothingSpeed);
+
+        // Clamp to limits
+        currentAngle = Mathf.Clamp(currentAngle, -angleLimit, angleLimit);
+
+        ApplyRotation();
+        CheckThresholdEvents();
+    }
+
+    private void UpdateLeverRotation()
+    {
+        if (firstInteractorSelecting == null || grabPoint == null) return;
+
+        // Get current interactor position
+        var currentInteractorPosition = firstInteractorSelecting.transform.position;
+
+        // Calculate the rotation based on hand movement
+        var leverPivotWorld = transform.position;
+        var grabPointWorld = grabPoint.position;
+
+        // Vector from pivot to grab point
+        var leverArmInitial = grabPointWorld - leverPivotWorld;
+
+        // Vector from pivot to current hand position
+        var leverArmCurrent = currentInteractorPosition - leverPivotWorld;
+
+        // Project both vectors onto the plane perpendicular to rotation axis
+        var worldRotationAxis = transform.TransformDirection(rotationAxis.normalized);
+        leverArmInitial = Vector3.ProjectOnPlane(leverArmInitial, worldRotationAxis);
+        leverArmCurrent = Vector3.ProjectOnPlane(leverArmCurrent, worldRotationAxis);
+
+        // Calculate angle between vectors
+        var angle = Vector3.SignedAngle(leverArmInitial, leverArmCurrent, worldRotationAxis);
+
+        // Update target angle
+        targetAngle = Mathf.Clamp(currentAngle + angle, -angleLimit, angleLimit);
+
+        // Update last position
+        lastInteractorPosition = currentInteractorPosition;
+    }
+
+    private void ApplyRotation()
+    {
+        // Calculate rotation quaternion
+        var rotationDelta = Quaternion.AngleAxis(currentAngle, rotationAxis);
+        var newLocalRotation = initialLocalRotation * rotationDelta;
+
+        // Apply rotation
+        transform.localRotation = newLocalRotation;
+
+        // Sync rigidbody if needed
+        if (rb != null) rb.rotation = transform.rotation;
+    }
+
+    private void CheckThresholdEvents()
+    {
+        var inPositiveThreshold = currentAngle >= eventThresholdAngle;
+        var inNegativeThreshold = currentAngle <= -eventThresholdAngle;
+        var isCentered = Mathf.Abs(currentAngle) < eventThresholdAngle * 0.5f; // 50% of threshold for center zone
+
+        // Check positive threshold
+        if (inPositiveThreshold && !wasInPositiveThreshold) onSideA?.Invoke();
+
+        // Check negative threshold
+        if (inNegativeThreshold && !wasInNegativeThreshold) onSideB?.Invoke();
+
+        // Check return to center
+        if (isCentered && !wasCentered) onReturnToCenter?.Invoke();
+
+        // Update state
+        wasInPositiveThreshold = inPositiveThreshold;
+        wasInNegativeThreshold = inNegativeThreshold;
+        wasCentered = isCentered;
+    }
+
+    public override Transform GetAttachTransform(IXRInteractor interactor)
+    {
+        return grabPoint != null ? grabPoint : base.GetAttachTransform(interactor);
     }
 
     public override void ProcessInteractable(XRInteractionUpdateOrder.UpdatePhase updatePhase)
     {
-        base.ProcessInteractable(updatePhase);
-        if (updatePhase == XRInteractionUpdateOrder.UpdatePhase.Dynamic)
-        {
-            if (isSelected) UpdateLeverRotation();
-            CheckForEvents();
-        }
-    }
-
-
-    private void UpdateLeverRotation()
-    {
-        var interactor = firstInteractorSelecting;
-        if (interactor == null) return;
-
-        // Calculate rotation based on the change from the initial grab point
-        var currentInteractorAngle = CalculateInteractorAngle(interactor.transform.position);
-        var angleDelta = Mathf.DeltaAngle(initialInteractorAngle, currentInteractorAngle);
-
-        var targetAngle = initialLeverAngle + angleDelta;
-        targetAngle = Mathf.Clamp(targetAngle, -symmetricLimit, symmetricLimit);
-
-        // Calculate how far we are from the target
-        var angleDistance = Mathf.Abs(Mathf.DeltaAngle(currentAngle, targetAngle));
-
-        // Choose movement method based on distance
-        if (angleDistance <= lerpThreshold)
-            // Very close to target - use lerp for smooth final approach
-            // This prevents micro-jittering when the hand is relatively still
-            currentAngle = Mathf.Lerp(currentAngle, targetAngle, Time.deltaTime * lerpSpeed);
-        else
-            // Far from target - use constant speed movement to prevent jumping
-            // This ensures smooth, predictable movement for large rotations
-            currentAngle = Mathf.MoveTowards(currentAngle, targetAngle, rotationSpeed * Time.deltaTime);
-
-        ApplyRotation(currentAngle);
-    }
-
-
-    private float CalculateInteractorAngle(Vector3 interactorPosition)
-    {
-        // --- FIX: The direction is now from this pivot's position, not the handle's ---
-        var localDirection = transform.InverseTransformPoint(interactorPosition).normalized;
-        var angle = 0f;
-
-        switch (rotationAxis)
-        {
-            case RotationAxis.X:
-                angle = -Mathf.Atan2(localDirection.y, localDirection.z) * Mathf.Rad2Deg;
-                break;
-            case RotationAxis.Y:
-                angle = Mathf.Atan2(localDirection.x, localDirection.z) * Mathf.Rad2Deg;
-                break;
-            case RotationAxis.Z:
-                angle = Mathf.Atan2(localDirection.y, localDirection.x) * Mathf.Rad2Deg;
-                break;
-        }
-
-        return angle;
-    }
-
-    private void ApplyRotation(float angle)
-    {
-        // --- FIX: Rotate this object (the pivot), not the handle directly. ---
-        // The handle will move correctly because it is a child of the pivot.
-        var rotationVector = Vector3.zero;
-        rotationVector[(int)rotationAxis] = angle + zeroAngleOffset;
-        transform.localRotation = Quaternion.Euler(rotationVector);
-    }
-
-    private float GetCurrentAngleFromTransform()
-    {
-        // --- FIX: Read the angle from this pivot object ---
-        var currentEuler = transform.localRotation.eulerAngles;
-        var angle = currentEuler[(int)rotationAxis];
-        if (angle > 180) angle -= 360;
-        return angle - zeroAngleOffset;
-    }
-
-    private void CheckForEvents()
-    {
-        if (currentAngle <= -symmetricLimit + eventTriggerThreshold)
-        {
-            if (!hasTriggeredSideA)
-            {
-                Debug.Log($"Lever triggered on Side A at angle {currentAngle}");
-                onSideA?.Invoke();
-                hasTriggeredSideA = true;
-                hasTriggeredSideB = false;
-            }
-        }
-        else if (currentAngle >= symmetricLimit - eventTriggerThreshold)
-        {
-            if (!hasTriggeredSideB)
-            {
-                Debug.Log($"Lever triggered on Side A at angle {currentAngle}");
-                onSideB?.Invoke();
-                hasTriggeredSideB = true;
-                hasTriggeredSideA = false;
-            }
-        }
-        else
-        {
-            hasTriggeredSideA = false;
-            hasTriggeredSideB = false;
-        }
+        if (!isBeingGrabbed) base.ProcessInteractable(updatePhase);
     }
 
 #if UNITY_EDITOR
-    // This special method is called by the Unity Editor whenever the object is selected.
-    // It allows us to draw visual helpers (gizmos) in the scene view.
-    private void OnDrawGizmosSelected()
+    private void OnDrawGizmos()
     {
-        // Get the pivot point and the axis of rotation in world space
-        var pivotPosition = transform.position;
-        var worldAxis = Vector3.forward;
-        switch (rotationAxis)
-        {
-            case RotationAxis.X:
-                worldAxis = transform.right;
-                break;
-            case RotationAxis.Y:
-                worldAxis = transform.up;
-                break;
-            case RotationAxis.Z:
-                worldAxis = transform.forward;
-                break;
-        }
+        // Get the transform to use (handle parent relationships correctly)
+        var parentTransform = Application.isPlaying ? originalParent : transform.parent;
+        var baseRotation = Application.isPlaying ? initialLocalRotation : transform.localRotation;
 
-        // Use the distance to the handle to set the radius of our visual arc
-        var gizmoRadius = handle != null ? Vector3.Distance(pivotPosition, handle.position) : 1f;
+        // Calculate world space rotation axis
+        var worldAxis = transform.TransformDirection(rotationAxis.normalized);
+        var center = transform.position;
 
-        // --- Draw the Arc for the entire range of motion ---
-        // We'll use the UnityEditor.Handles class for more advanced drawing options.
-        Handles.color = new Color(1, 0.5f, 0, 0.1f); // A semi-transparent orange
+        // Draw rotation axis
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(center - worldAxis * gizmoRadius * 0.5f, center + worldAxis * gizmoRadius * 0.5f);
 
-        // Calculate the starting direction for the arc, including the min limit and the zero offset
-        var minRotation = Quaternion.AngleAxis(-symmetricLimit + zeroAngleOffset, worldAxis);
-        var arcStartDirection = minRotation * transform.up; // A default "up" direction to rotate from
+        // Get a perpendicular vector in world space
+        var worldPerpendicular = GetPerpendicularVector(worldAxis);
 
-        // Draw the solid arc representing the full range
-        Handles.DrawSolidArc(
-            pivotPosition, // Center of the arc
-            worldAxis, // Axis to rotate around
-            arcStartDirection, // Vector to start drawing from
-            symmetricLimit * 2, // Total angle of the arc
-            gizmoRadius // Radius of the arc
-        );
-
-        // --- Draw a line indicating the current angle (only works in Play Mode) ---
+        // Draw current angle
         if (Application.isPlaying)
         {
-            Handles.color = Color.yellow;
-            var currentRotation = Quaternion.AngleAxis(currentAngle + zeroAngleOffset, worldAxis);
-            var currentDirection = currentRotation * transform.up;
-            // Make the line thicker for better visibility
-            Handles.DrawLine(pivotPosition, pivotPosition + currentDirection * gizmoRadius, 4f);
+            Gizmos.color = Color.cyan;
+            DrawRotationGizmo(center, worldAxis, worldPerpendicular, currentAngle, gizmoRadius * 0.8f);
+        }
+
+        // Draw limits
+        Gizmos.color = gizmoColor;
+        DrawRotationGizmo(center, worldAxis, worldPerpendicular, angleLimit, gizmoRadius);
+        DrawRotationGizmo(center, worldAxis, worldPerpendicular, -angleLimit, gizmoRadius);
+
+        // Draw threshold angles
+        Gizmos.color = new Color(1f, 0.5f, 0f, 0.8f); // Orange
+        DrawRotationGizmo(center, worldAxis, worldPerpendicular, eventThresholdAngle, gizmoRadius * 0.9f);
+        DrawRotationGizmo(center, worldAxis, worldPerpendicular, -eventThresholdAngle, gizmoRadius * 0.9f);
+
+        // Draw arc showing range
+        if (showGizmoArc) DrawArc(center, worldAxis, worldPerpendicular, -angleLimit, angleLimit, gizmoRadius, 20);
+    }
+
+    private Vector3 GetPerpendicularVector(Vector3 axis)
+    {
+        // Find a perpendicular vector that accounts for parent rotation
+        Vector3 perpendicular;
+
+        if (Mathf.Abs(Vector3.Dot(axis, Vector3.up)) < 0.9f)
+            perpendicular = Vector3.Cross(axis, Vector3.up).normalized;
+        else
+            perpendicular = Vector3.Cross(axis, Vector3.forward).normalized;
+
+        return perpendicular;
+    }
+
+    private void DrawRotationGizmo(Vector3 center, Vector3 axis, Vector3 perpendicular, float angle, float radius)
+    {
+        // Rotate perpendicular by angle around axis
+        var rotation = Quaternion.AngleAxis(angle, axis);
+        var direction = rotation * perpendicular;
+
+        // Draw line from center
+        Gizmos.DrawLine(center, center + direction * radius);
+
+        // Draw small sphere at end
+        Gizmos.DrawSphere(center + direction * radius, radius * 0.05f);
+    }
+
+    private void DrawArc(Vector3 center, Vector3 axis, Vector3 perpendicular, float startAngle, float endAngle,
+        float radius, int segments)
+    {
+        var angleStep = (endAngle - startAngle) / segments;
+        var lastPoint = center + Quaternion.AngleAxis(startAngle, axis) * perpendicular * radius;
+
+        for (var i = 1; i <= segments; i++)
+        {
+            var currentAngleInArc = startAngle + angleStep * i;
+            var currentPoint = center + Quaternion.AngleAxis(currentAngleInArc, axis) * perpendicular * radius;
+            Gizmos.DrawLine(lastPoint, currentPoint);
+            lastPoint = currentPoint;
         }
     }
 #endif
+
+    // Helper methods
+    public void ResetToCenter()
+    {
+        targetAngle = 0f;
+        currentAngle = 0f;
+        ApplyRotation();
+    }
+
+    public void SetNormalizedAngle(float normalizedAngle)
+    {
+        targetAngle = Mathf.Clamp01(normalizedAngle) * angleLimit * 2f - angleLimit;
+    }
+
+    public float GetNormalizedAngle()
+    {
+        return (currentAngle + angleLimit) / (angleLimit * 2f);
+    }
+
+    public float GetCurrentAngle()
+    {
+        return currentAngle;
+    }
 }

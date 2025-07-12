@@ -3,233 +3,238 @@ using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
-[RequireComponent(typeof(Rigidbody))]
-public class DrawerGrabbable : XRGrabInteractable
+public class DrawerXRGrabInteractable : XRGrabInteractable
 {
     [Header("Drawer Settings")] [SerializeField]
-    private float pullAxis = 2; // 0=X, 1=Y, 2=Z
+    private Vector3 moveAxis = Vector3.forward; // Local axis to move along
 
-    [SerializeField] private float minPosition = 0f;
-    [SerializeField] private float maxPosition = 0.3f;
+    [SerializeField] private float minPosition = 0f; // Minimum position along axis
+    [SerializeField] private float maxPosition = 0.5f; // Maximum position along axis
+    [SerializeField] private float smoothingSpeed = 10f; // Smoothing speed for movement
 
-    [Header("Movement Settings")] [SerializeField]
-    private float smoothSpeed = 15f;
+    [Header("Gizmo Settings")] [SerializeField]
+    private Color gizmoColor = Color.green;
 
-    [SerializeField] private bool instantStop = true;
+    [SerializeField] private float gizmoSize = 0.05f;
 
-    private Vector3 startLocalPosition;
-    private Vector3 grabOffset;
-    private Rigidbody rb;
-    private bool isBeingGrabbed;
+    // References
     private Transform originalParent;
-    private IXRSelectInteractor currentInteractor;
+    private Vector3 initialLocalPosition;
+    private Quaternion initialLocalRotation;
+    public Transform handle;
+    private Rigidbody rb;
+
+    // Runtime variables
+    private float currentPosition;
+    private float targetPosition;
+    private Vector3 lastInteractorPosition;
+    private bool isBeingGrabbed;
+
+    // Constraint helpers
+    private Vector3 worldAxis; // World space direction of movement axis
 
     protected override void Awake()
     {
         base.Awake();
-        rb = GetComponent<Rigidbody>();
 
-        // Store initial state
+        // Store original parent and position
         originalParent = transform.parent;
-        if (originalParent != null)
-        {
-            startLocalPosition = transform.localPosition;
-        }
-        else
-        {
-            Debug.LogError($"DrawerGrabbable on {gameObject.name} requires a parent transform!");
-            startLocalPosition = transform.position;
-        }
+        initialLocalPosition = transform.localPosition;
+        initialLocalRotation = transform.localRotation;
 
-        // Configure rigidbody for drawer behavior
-        ConfigureRigidbody();
+        // Find handle in children
+        if (handle == null) Debug.LogWarning("No handle found as child of drawer!");
 
-        // Override XR Grab Interactable settings
-        movementType = MovementType.Instantaneous;
-        trackPosition = false;
-        trackRotation = false;
+        // Get or add Rigidbody
+        rb = GetComponent<Rigidbody>();
+        if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
+
+        // Configure Rigidbody for kinematic movement
+        rb.isKinematic = true;
+        rb.useGravity = false;
+        rb.constraints = RigidbodyConstraints.FreezeRotation; // Freeze all rotations
+
+        // Configure XRGrabInteractable settings
+        movementType = MovementType.Kinematic;
+        attachTransform = handle;
         throwOnDetach = false;
+        trackRotation = false; // Disable rotation tracking
+        trackPosition = false; // We'll handle position ourselves
+
+        // Calculate current position along axis
+        currentPosition = Vector3.Dot(transform.localPosition - initialLocalPosition, moveAxis.normalized);
+        targetPosition = currentPosition;
+
+        // Calculate world axis direction
+        UpdateWorldAxis();
     }
 
-    private void ConfigureRigidbody()
+    private void UpdateWorldAxis()
     {
-        rb.isKinematic = true; // We'll handle movement manually
-        rb.useGravity = false;
-        rb.interpolation = RigidbodyInterpolation.Interpolate;
-
-        // Freeze all rotations
-        rb.constraints = RigidbodyConstraints.FreezeRotation;
-
-        // Also freeze position on non-pull axes
-        if (pullAxis != 0) rb.constraints |= RigidbodyConstraints.FreezePositionX;
-        if (pullAxis != 1) rb.constraints |= RigidbodyConstraints.FreezePositionY;
-        if (pullAxis != 2) rb.constraints |= RigidbodyConstraints.FreezePositionZ;
+        if (originalParent != null) worldAxis = originalParent.TransformDirection(moveAxis.normalized);
     }
 
     protected override void OnSelectEntered(SelectEnterEventArgs args)
     {
-        // Store the interactor
-        currentInteractor = args.interactorObject;
+        base.OnSelectEntered(args);
+
         isBeingGrabbed = true;
 
-        // Calculate grab offset in local space if we have a parent
-        if (originalParent != null)
-        {
-            var interactorWorldPos = args.interactorObject.transform.position;
-            var interactorLocalPos = originalParent.InverseTransformPoint(interactorWorldPos);
-            grabOffset = transform.localPosition - interactorLocalPos;
-        }
-        else
-        {
-            grabOffset = Vector3.zero;
-        }
+        // Restore our parent relationship if it was changed
+        if (transform.parent != originalParent && originalParent != null) transform.SetParent(originalParent, true);
 
-        // Ensure we're kinematic during grab
-        rb.isKinematic = true;
-        base.OnSelectEntered(args);
+        // Store initial interactor position
+        if (args.interactorObject.transform != null) lastInteractorPosition = args.interactorObject.transform.position;
+
+        // Update world axis in case parent has rotated
+        UpdateWorldAxis();
     }
 
     protected override void OnSelectExited(SelectExitEventArgs args)
     {
-        isBeingGrabbed = false;
-        currentInteractor = null;
-
-        if (instantStop && rb != null)
-        {
-            // Since we're kinematic, we don't need to set velocity
-            // The drawer will just stop where it is
-        }
-
         base.OnSelectExited(args);
+        isBeingGrabbed = false;
+
+        // Ensure we're back with original parent
+        if (transform.parent != originalParent && originalParent != null) transform.SetParent(originalParent, true);
     }
 
-    public override void ProcessInteractable(XRInteractionUpdateOrder.UpdatePhase updatePhase)
+    private void Update()
     {
-        // We override the base processing but still need to call it for other functionality
-        base.ProcessInteractable(updatePhase);
+        if (isBeingGrabbed && isSelected) UpdateDrawerPosition();
 
-        if (isBeingGrabbed && updatePhase == XRInteractionUpdateOrder.UpdatePhase.Fixed) UpdateDrawerPosition();
+        // Apply smoothing
+        currentPosition = Mathf.Lerp(currentPosition, targetPosition, Time.deltaTime * smoothingSpeed);
+
+        // Clamp current position to ensure it never exceeds limits
+        currentPosition = Mathf.Clamp(currentPosition, minPosition, maxPosition);
+
+        ApplyPosition();
     }
 
     private void UpdateDrawerPosition()
     {
-        if (!isBeingGrabbed || currentInteractor == null) return;
+        if (firstInteractorSelecting == null) return;
 
-        // Get interactor position
-        var interactorWorldPos = currentInteractor.transform.position;
+        // Get current interactor position
+        var currentInteractorPosition = firstInteractorSelecting.transform.position;
 
-        if (originalParent != null)
+        // Calculate hand movement in world space
+        var handMovement = currentInteractorPosition - lastInteractorPosition;
+
+        // Project movement onto the drawer's movement axis (in world space)
+        var movementAlongAxis = Vector3.Dot(handMovement, worldAxis);
+
+        // Update target position
+        var newTargetPosition = targetPosition + movementAlongAxis;
+
+        // Clamp to limits
+        targetPosition = Mathf.Clamp(newTargetPosition, minPosition, maxPosition);
+
+        // Update last interactor position for next frame
+        lastInteractorPosition = currentInteractorPosition;
+    }
+
+    private void ApplyPosition()
+    {
+        // Ensure we maintain parent relationship
+        if (transform.parent != originalParent && originalParent != null) transform.SetParent(originalParent, true);
+
+        // Calculate new LOCAL position (only along the specified axis)
+        var newLocalPosition = initialLocalPosition + moveAxis.normalized * currentPosition;
+
+        // Apply position - force local position to prevent any deviation
+        transform.localPosition = newLocalPosition;
+
+        // Force rotation to stay locked
+        transform.localRotation = initialLocalRotation;
+
+        // If using Rigidbody, sync its position
+        if (rb != null && originalParent != null)
         {
-            // Convert to parent's local space
-            var interactorLocalPos = originalParent.InverseTransformPoint(interactorWorldPos);
+            rb.position = transform.position;
+            rb.rotation = transform.rotation;
+        }
+    }
 
-            // Calculate target position
-            var targetPosition = transform.localPosition;
+    // Override the grab transformations to prevent default behavior
+    public override Transform GetAttachTransform(IXRInteractor interactor)
+    {
+        return handle != null ? handle : base.GetAttachTransform(interactor);
+    }
 
-            // Apply movement only on the pull axis
-            var axisIndex = Mathf.RoundToInt(pullAxis);
-            var desiredAxisPosition = interactorLocalPos[axisIndex] + grabOffset[axisIndex];
-
-            // Clamp to limits
-            desiredAxisPosition = Mathf.Clamp(
-                desiredAxisPosition,
-                startLocalPosition[axisIndex] + minPosition,
-                startLocalPosition[axisIndex] + maxPosition
-            );
-
-            targetPosition[axisIndex] = desiredAxisPosition;
-
-            // Ensure other axes remain at start position
-            for (var i = 0; i < 3; i++)
-                if (i != axisIndex)
-                    targetPosition[i] = startLocalPosition[i];
-
-            // Apply position smoothly
-            if (smoothSpeed > 0)
-                transform.localPosition = Vector3.Lerp(
-                    transform.localPosition,
-                    targetPosition,
-                    Time.fixedDeltaTime * smoothSpeed
-                );
-            else
-                transform.localPosition = targetPosition;
+    // Override to completely prevent position/rotation updates from XRGrabInteractable
+    public override void ProcessInteractable(XRInteractionUpdateOrder.UpdatePhase updatePhase)
+    {
+        // Call base but skip if we're grabbed
+        if (!isBeingGrabbed)
+        {
+            base.ProcessInteractable(updatePhase);
         }
         else
         {
-            // Fallback for no parent (shouldn't happen with proper setup)
-            Debug.LogWarning("Drawer has no parent - movement may be incorrect!");
+            // Only process the interaction state, not movement
+            if (updatePhase == XRInteractionUpdateOrder.UpdatePhase.Dynamic)
+            {
+                // Maintain our constraints
+                transform.localRotation = initialLocalRotation;
+
+                // Ensure position stays on axis
+                var currentLocal = transform.localPosition;
+                var desiredLocal = initialLocalPosition + moveAxis.normalized * currentPosition;
+                if (Vector3.Distance(currentLocal, desiredLocal) > 0.001f) transform.localPosition = desiredLocal;
+            }
         }
-
-        // Force rotation to stay exactly the same
-        transform.localRotation = Quaternion.identity;
     }
 
-    private void LateUpdate()
+    private void OnDrawGizmos()
     {
-        // Extra safety to ensure rotation never changes
-        if (transform.localRotation != Quaternion.identity) transform.localRotation = Quaternion.identity;
-    }
+        var axis = moveAxis.normalized;
+        var basePos = Application.isPlaying ? initialLocalPosition : transform.localPosition;
 
-    // Override to prevent the default grab behavior
-    public override bool IsSelectableBy(IXRSelectInteractor interactor)
-    {
-        // Always selectable unless you want to add conditions
-        return base.IsSelectableBy(interactor);
-    }
+        var parent = Application.isPlaying ? originalParent : transform.parent;
+        if (parent == null) return;
 
-    // Public method to reset drawer position
-    public void ResetPosition()
-    {
-        transform.localPosition = startLocalPosition;
-        transform.localRotation = Quaternion.identity;
-    }
+        Gizmos.color = gizmoColor;
 
-    // Public method to check if drawer is open
-    public bool IsOpen()
-    {
-        var axisIndex = Mathf.RoundToInt(pullAxis);
-        var currentAxisPosition = transform.localPosition[axisIndex];
-        var startAxisPosition = startLocalPosition[axisIndex];
-        return Mathf.Abs(currentAxisPosition - startAxisPosition) > 0.01f;
-    }
+        // Draw min position
+        var minWorldPos = parent.TransformPoint(basePos + axis * minPosition);
+        Gizmos.DrawWireSphere(minWorldPos, gizmoSize);
+        Gizmos.DrawWireCube(minWorldPos, Vector3.one * gizmoSize * 1.5f);
 
-    // Get normalized open amount (0 = closed, 1 = fully open)
-    public float GetOpenAmount()
-    {
-        var axisIndex = Mathf.RoundToInt(pullAxis);
-        var currentAxisPosition = transform.localPosition[axisIndex];
-        var startAxisPosition = startLocalPosition[axisIndex];
-        var currentOffset = currentAxisPosition - startAxisPosition;
-        return Mathf.Clamp01(currentOffset / maxPosition);
-    }
+        // Draw max position
+        var maxWorldPos = parent.TransformPoint(basePos + axis * maxPosition);
+        Gizmos.DrawWireSphere(maxWorldPos, gizmoSize);
+        Gizmos.DrawWireCube(maxWorldPos, Vector3.one * gizmoSize * 1.5f);
 
-#if UNITY_EDITOR
-    private void OnDrawGizmosSelected()
-    {
-        var startPos = Application.isPlaying
-            ? originalParent != null ? originalParent.TransformPoint(startLocalPosition) : startLocalPosition
-            : transform.position;
+        // Draw line between min and max
+        Gizmos.DrawLine(minWorldPos, maxWorldPos);
 
-        var axis = Mathf.RoundToInt(pullAxis);
-        var direction = axis == 0 ? transform.right : axis == 1 ? transform.up : transform.forward;
-
-        var minPos = startPos;
-        var maxPos = startPos + direction * maxPosition;
-
-        // Draw the movement range
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(minPos, maxPos);
-        Gizmos.DrawWireCube(minPos, Vector3.one * 0.05f);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(maxPos, Vector3.one * 0.05f);
-
-        // Draw current position if playing
-        if (Application.isPlaying && isBeingGrabbed)
+        // Draw current position when playing
+        if (Application.isPlaying)
         {
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position, 0.1f);
+            var currentWorldPos = parent.TransformPoint(basePos + axis * currentPosition);
+            Gizmos.DrawSphere(currentWorldPos, gizmoSize * 0.8f);
         }
     }
-#endif
+
+    public void ResetPosition()
+    {
+        targetPosition = 0f;
+        currentPosition = 0f;
+        ApplyPosition();
+    }
+
+    public void SetNormalizedPosition(float normalizedPos)
+    {
+        var range = maxPosition - minPosition;
+        targetPosition = minPosition + range * Mathf.Clamp01(normalizedPos);
+    }
+
+    public float GetNormalizedPosition()
+    {
+        var range = maxPosition - minPosition;
+        return range > 0 ? (currentPosition - minPosition) / range : 0f;
+    }
 }
