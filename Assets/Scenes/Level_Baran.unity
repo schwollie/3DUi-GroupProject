@@ -830,6 +830,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: cockpit_window
       objectReference: {fileID: 0}
+    - target: {fileID: 3714447062666754340, guid: a098c44def5f8ae4293fc11294436c10, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4091394096559481758, guid: a098c44def5f8ae4293fc11294436c10, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -8329,15 +8333,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1139913744157412264, guid: b8b6fe041f5175944859fc948bbc30f7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.1812656
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1139913744157412264, guid: b8b6fe041f5175944859fc948bbc30f7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.04
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1139913744157412264, guid: b8b6fe041f5175944859fc948bbc30f7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 11.62
+      value: -6.67
       objectReference: {fileID: 0}
     - target: {fileID: 1139913744157412264, guid: b8b6fe041f5175944859fc948bbc30f7, type: 3}
       propertyPath: m_LocalRotation.w
