@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
+using UnityEngine.UI;
 
 public class KeypadController : MonoBehaviour
 {
     [SerializeField] private List<int> correctPassword = new();
     [SerializeField] private TMP_InputField codeDisplay;
+    [SerializeField] private Image codeDisplayBG;
     [SerializeField] private string successText = "ACCESS GRANTED";
     [Min(0.1f)]
     [SerializeField] private float resetDelay = 1f;
@@ -21,13 +23,16 @@ public class KeypadController : MonoBehaviour
     [SerializeField] private SoundDefinition welcomeSoundDefinition;
     [SerializeField] private SoundDefinition passwordIncorrectSoundDefinition;
     [SerializeField] private SoundDefinition passwordCorrectSoundDefinition;
+    [SerializeField] private SoundDefinition openDoorSoundDefinition;
     
     [Header("Keypad References")]
     [SerializeField] private CanvasGroup keypadCanvasGroup;
 
     private readonly List<int> _input = new();
     private bool _hasSucceeded = false; 
-    private bool _isLocked = false; 
+    private bool _isLocked = false;
+
+    private Color codeDisplayBGOriginalColor;
 
     public bool HasSucceeded => _hasSucceeded;
 
@@ -38,6 +43,8 @@ public class KeypadController : MonoBehaviour
             codeDisplay.readOnly = true;
             codeDisplay.text = "NO POWER";
         }
+
+        codeDisplayBGOriginalColor = codeDisplayBG.color;
     }
     
     private void OnEnable()
@@ -113,6 +120,7 @@ public class KeypadController : MonoBehaviour
         {
             AudioManager.Instance.PlaySound(passwordCorrectSoundDefinition, transform.position);
             yield return new WaitForSeconds(0.5f);
+            AudioManager.Instance.PlaySound(openDoorSoundDefinition, transform.position + Vector3.right * 1.5f);
             AudioManager.Instance.PlaySound(welcomeSoundDefinition, transform.position);
             this.enabled = false;
         }
@@ -120,6 +128,7 @@ public class KeypadController : MonoBehaviour
         else
         {
             AudioManager.Instance.PlaySound(passwordIncorrectSoundDefinition, transform.position);
+            codeDisplayBG.color = Color.red;
             yield return new WaitForSeconds(0.5f);
             AudioManager.Instance.PlaySound(accessDeniedSoundDefinition, transform.position);
         }
@@ -131,6 +140,7 @@ public class KeypadController : MonoBehaviour
         yield return new WaitForSeconds(resetDelay);
 
         _input.Clear();
+        codeDisplayBG.color = codeDisplayBGOriginalColor;
         if (codeDisplay) codeDisplay.text = "Enter code...";
         _isLocked = false;  
     }

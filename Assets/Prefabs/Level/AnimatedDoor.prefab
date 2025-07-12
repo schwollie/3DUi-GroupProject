@@ -140,5 +140,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   doorAnimator: {fileID: 5962179378466067230}
-  openSound: {fileID: 0}
+  openSound: {fileID: 11400000, guid: 53d80ac9cd9c9754fb1578ddc86c84f4, type: 2}
   closeSound: {fileID: 0}

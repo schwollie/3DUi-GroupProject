@@ -137,6 +137,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   correctPassword: 01000000020000000300000004000000
   codeDisplay: {fileID: 2071792748852076052}
+  codeDisplayBG: {fileID: 475877648602409460}
   successText: ACCESS GRANTED!
   resetDelay: 1
   onCorrectPassword:
@@ -161,6 +162,7 @@ MonoBehaviour:
   welcomeSoundDefinition: {fileID: 11400000, guid: dddaf37bcb5e0cd49be982044eab2989, type: 2}
   passwordIncorrectSoundDefinition: {fileID: 11400000, guid: f4c7378dd5d86154e8bd274eb62cc92d, type: 2}
   passwordCorrectSoundDefinition: {fileID: 11400000, guid: d9b1a702d0c226042b7343140cccee07, type: 2}
+  openDoorSoundDefinition: {fileID: 11400000, guid: 53d80ac9cd9c9754fb1578ddc86c84f4, type: 2}
   keypadCanvasGroup: {fileID: 2280318212805679903}
 --- !u!1 &318414455895216659
 GameObject:
