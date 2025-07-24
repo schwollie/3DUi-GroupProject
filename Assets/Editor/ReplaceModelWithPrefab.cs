@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
 using System.Text.RegularExpressions;
@@ -45,3 +46,4 @@ public class ReplaceModelsWithPrefabs : MonoBehaviour
         }
     }
 }
+#endif

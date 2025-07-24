@@ -12328,21 +12328,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 476985030}
     m_Modifications:
-    - target: {fileID: 482139456222387877, guid: bd730bbfeeddbe6449e52d2718a2a757, type: 3}
-      propertyPath: m_Layer
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1317384797522836452, guid: bd730bbfeeddbe6449e52d2718a2a757, type: 3}
-      propertyPath: m_Layer
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4840685017174221407, guid: bd730bbfeeddbe6449e52d2718a2a757, type: 3}
       propertyPath: m_text
       value: 16/06/2993
-      objectReference: {fileID: 0}
-    - target: {fileID: 5180765731380670076, guid: bd730bbfeeddbe6449e52d2718a2a757, type: 3}
-      propertyPath: m_Layer
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8103941704732048582, guid: bd730bbfeeddbe6449e52d2718a2a757, type: 3}
       propertyPath: m_LocalPosition.x
@@ -12387,10 +12375,6 @@ PrefabInstance:
     - target: {fileID: 8880303138795857532, guid: bd730bbfeeddbe6449e52d2718a2a757, type: 3}
       propertyPath: m_Name
       value: note_2 Variant
-      objectReference: {fileID: 0}
-    - target: {fileID: 8880303138795857532, guid: bd730bbfeeddbe6449e52d2718a2a757, type: 3}
-      propertyPath: m_Layer
-      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -14008,7 +13992,7 @@ RectTransform:
   m_GameObject: {fileID: 1314927032}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0.6}
-  m_LocalScale: {x: 2.0766401, y: 1, z: 1}
+  m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 945141916}
@@ -16810,7 +16794,7 @@ RectTransform:
   m_GameObject: {fileID: 1672785297}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0.6}
-  m_LocalScale: {x: 3.323741, y: 1, z: 1}
+  m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 945141916}
@@ -18560,7 +18544,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3492831132564776799, guid: c1081a659fdf45447b30ca08bf8e389f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -8.32
+      value: -7.592
       objectReference: {fileID: 0}
     - target: {fileID: 3492831132564776799, guid: c1081a659fdf45447b30ca08bf8e389f, type: 3}
       propertyPath: m_LocalRotation.w
@@ -18600,7 +18584,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5554254388911562051, guid: c1081a659fdf45447b30ca08bf8e389f, type: 3}
       propertyPath: m_Intensity
-      value: 0.4
+      value: 0.18
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
